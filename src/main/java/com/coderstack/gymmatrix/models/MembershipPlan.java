@@ -1,5 +1,6 @@
 package com.coderstack.gymmatrix.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
@@ -14,6 +15,7 @@ public class MembershipPlan {
     private int price;
     @ManyToOne
     @JoinColumn(name = "gym_id", nullable = false)
+    @JsonIgnore
     private Gym gym;
     @Column(name = "created_at")
     private LocalDateTime createdAt;

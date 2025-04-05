@@ -34,6 +34,7 @@ public class GymController {
         gym.setState(newGym.state);
         gym.setCountry(newGym.country);
         gym.setZip(newGym.zip);
+        gym.setEmail(newGym.email);
         Gym savedGym=gymRepository.save(gym);
 
         User user = getUser(newGym, savedGym);
