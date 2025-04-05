@@ -2,7 +2,7 @@ package com.coderstack.gymmatrix.controller;
 
 import com.coderstack.gymmatrix.dto.NewGym;
 import com.coderstack.gymmatrix.models.Gym;
-import com.coderstack.gymmatrix.models.Users;
+import com.coderstack.gymmatrix.models.User;
 import com.coderstack.gymmatrix.enums.UserType;
 import com.coderstack.gymmatrix.repository.GymRepository;
 import com.coderstack.gymmatrix.repository.UserRepository;
@@ -24,7 +24,7 @@ public class GymController {
     private GymRepository gymRepository;
 
     @PostMapping("/add")
-    public ResponseEntity<String> add(@RequestBody NewGym newGym) {
+    public ResponseEntity<?> add(@RequestBody NewGym newGym) {
         Gym gym = new Gym();
         gym.setName(newGym.gym_name);
         gym.setDescription(newGym.gym_description);
@@ -35,7 +35,14 @@ public class GymController {
         gym.setCountry(newGym.country);
         gym.setZip(newGym.zip);
         Gym savedGym=gymRepository.save(gym);
-        Users user = new Users();
+
+        User user = getUser(newGym, savedGym);
+        userRepository.save(user);
+        return ResponseEntity.ok("Gym and user added successfully");
+    }
+
+    private static User getUser(NewGym newGym, Gym savedGym) {
+        User user = new User();
         user.setName(newGym.name);
         user.setPassword(newGym.password);
         user.setEmail(newGym.email);
@@ -49,7 +56,6 @@ public class GymController {
         user.setZip(newGym.zip);
         user.setUserType(UserType.admin);
         user.setGym(savedGym);
-        userRepository.save(user);
-        return ResponseEntity.ok("Gym and user added successfully");
+        return user;
     }
 }
