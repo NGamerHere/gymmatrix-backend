@@ -4,6 +4,7 @@ import com.coderstack.gymmatrix.models.Gym;
 import com.coderstack.gymmatrix.models.Member;
 import com.coderstack.gymmatrix.repository.GymRepository;
 import com.coderstack.gymmatrix.repository.MemberRepository;
+import com.coderstack.gymmatrix.service.DuplicateCheckService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,6 +23,9 @@ public class MemberController {
     @Autowired
     private GymRepository gymRepository;
 
+    @Autowired
+    private DuplicateCheckService duplicateCheckService;
+
     @PostMapping("/member")
     public ResponseEntity<?> addNewUser(@PathVariable int gym_id, @RequestBody Member newMember){
         Map<String,String> res=new HashMap<>();
@@ -30,14 +34,13 @@ public class MemberController {
             res.put("error","gym not found");
             return ResponseEntity.status(404).body(res);
         }
-        Optional<Member> existing = memberRepository.findByPhoneOrEmail(newMember.getPhone(), newMember.getEmail());
-        if (existing.isPresent()) {
-            Member existingMember = existing.get();
-            if (existingMember.getPhone().equals(newMember.getPhone())) {
-                res.put("error", "Phone number already exists");
-            } else {
-                res.put("error", "Email already exists");
-            }
+        Map<String,String> duplicate=duplicateCheckService.checkDuplicate(gym.get().getId(),newMember.getPhone(), newMember.getEmail());
+        if(!duplicate.isEmpty()){
+          if (duplicate.get("phone") != null ) {
+              res.put("error", "Phone number already exists");
+          }else if(duplicate.get("email") != null){
+              res.put("error", "Email already exists");
+          }
             return ResponseEntity.status(409).body(res);
         }
         newMember.setGym(gym.get());
