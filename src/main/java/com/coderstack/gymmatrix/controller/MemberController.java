@@ -27,25 +27,100 @@ public class MemberController {
     private DuplicateCheckService duplicateCheckService;
 
     @PostMapping("/member")
-    public ResponseEntity<?> addNewUser(@PathVariable int gym_id, @RequestBody Member newMember){
-        Map<String,String> res=new HashMap<>();
-        Optional<Gym> gym=gymRepository.findById(gym_id);
-        if (gym.isEmpty()){
-            res.put("error","gym not found");
-            return ResponseEntity.status(404).body(res);
+    public ResponseEntity<?> addNewUser(@PathVariable int gym_id, @RequestBody Member newMember) {
+        Optional<Gym> gymOpt = getGymById(gym_id);
+        if (gymOpt.isEmpty()) {
+            return sendErrorResponse("Gym not found", 404);
         }
-        Map<String,String> duplicate=duplicateCheckService.checkDuplicate(gym.get().getId(),newMember.getPhone(), newMember.getEmail());
-        if(!duplicate.isEmpty()){
-          if (duplicate.get("phone") != null ) {
-              res.put("error", "Phone number already exists");
-          }else if(duplicate.get("email") != null){
-              res.put("error", "Email already exists");
-          }
-            return ResponseEntity.status(409).body(res);
+
+        Gym gym = gymOpt.get();
+        Map<String, String> duplicate = duplicateCheckService.checkDuplicate(
+                gym.getId(), newMember.getPhone(), newMember.getEmail());
+
+        if (!duplicate.isEmpty()) {
+            if (duplicate.get("phone") != null) {
+                return sendErrorResponse("Phone number already exists", 409);
+            } else if (duplicate.get("email") != null) {
+                return sendErrorResponse("Email already exists", 409);
+            }
         }
-        newMember.setGym(gym.get());
+
+        newMember.setGym(gym);
         memberRepository.save(newMember);
-        res.put("message","new member saved successfully");
+
+        return sendSuccessResponse("New member saved successfully");
+    }
+
+    @GetMapping("/member")
+    public ResponseEntity<?> getMember(@PathVariable int gym_id) {
+        Optional<Gym> gymOpt = getGymById(gym_id);
+        if (gymOpt.isEmpty()) {
+            return sendErrorResponse("Gym not found", 404);
+        }
+
+        return ResponseEntity.ok(memberRepository.findByGym(gymOpt.get()));
+    }
+
+    @PutMapping("/member/{member_id}")
+    public ResponseEntity<?> updateMember(@PathVariable int gym_id, @PathVariable int member_id, @RequestBody Member updatedMember) {
+        Optional<Gym> gymOpt = getGymById(gym_id);
+        if (gymOpt.isEmpty()) {
+            return sendErrorResponse("Gym not found", 404);
+        }
+
+        Optional<Member> existingMemberOpt = memberRepository.findById(member_id);
+        if (existingMemberOpt.isEmpty()) {
+            return sendErrorResponse("Member not found", 404);
+        }
+
+        Member existingMember = existingMemberOpt.get();
+        if (existingMember.getGym().getId() != gym_id) {
+            return sendErrorResponse("Member does not belong to this gym", 403);
+        }
+
+        existingMember.setName(updatedMember.getName());
+        existingMember.setPhone(updatedMember.getPhone());
+        existingMember.setEmail(updatedMember.getEmail());
+
+        memberRepository.save(existingMember);
+        return sendSuccessResponse("Member updated successfully");
+    }
+
+    @DeleteMapping("/member/{member_id}")
+    public ResponseEntity<?> deleteMember(@PathVariable int gym_id, @PathVariable int member_id) {
+        Optional<Gym> gymOpt = getGymById(gym_id);
+        if (gymOpt.isEmpty()) {
+            return sendErrorResponse("Gym not found", 404);
+        }
+
+        Optional<Member> memberOpt = memberRepository.findById(member_id);
+        if (memberOpt.isEmpty()) {
+            return sendErrorResponse("Member not found", 404);
+        }
+
+        Member member = memberOpt.get();
+        if (member.getGym().getId() != gym_id) {
+                return sendErrorResponse("Member does not belong to this gym", 403);
+        }
+
+        memberRepository.delete(member);
+        return sendSuccessResponse("Member deleted successfully");
+    }
+
+
+    private Optional<Gym> getGymById(int gymId) {
+        return gymRepository.findById(gymId);
+    }
+
+    private ResponseEntity<Map<String, String>> sendErrorResponse(String error, int status) {
+        Map<String, String> res = new HashMap<>();
+        res.put("error", error);
+        return ResponseEntity.status(status).body(res);
+    }
+
+    private ResponseEntity<Map<String, String>> sendSuccessResponse(String message) {
+        Map<String, String> res = new HashMap<>();
+        res.put("message", message);
         return ResponseEntity.ok(res);
     }
 }

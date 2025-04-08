@@ -22,9 +22,6 @@ import java.util.Map;
 @RequestMapping("/api/auth")
 public class AuthController {
     @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
     private AdminRepository adminRepository;
 
     @Autowired
@@ -35,6 +32,10 @@ public class AuthController {
         Map<String, String> res = new HashMap<>();
         if (signData.role == UserType.admin) {
             Admin admin = adminRepository.findByEmail(signData.email);
+            if(admin == null || !admin.comparePassword(signData.password) ) {
+                res.put("error", "Invalid email or password");
+                return ResponseEntity.status(401).body(res);
+            }
             Gym gym = admin.getGym();
             Map<String, Object> claims = Map.of("role", UserType.admin
                     , "user_id", admin.getId()
