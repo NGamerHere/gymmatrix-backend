@@ -21,7 +21,7 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/dashboard")
+@RequestMapping("/api/admin/{gym_id}")
 public class MemberShipPlansController {
 
     @Autowired
@@ -30,20 +30,15 @@ public class MemberShipPlansController {
     @Autowired
     private GymRepository gymRepository;
 
-    @GetMapping("/plan")
-    public List<MembershipPlan> getAllPlans(HttpServletRequest request){
-        Claims claims = (Claims) request.getAttribute("sessionData");
-        Integer gymId = (Integer) claims.get("gym_id");
-        Gym gym = gymRepository.findById(gymId).orElseThrow(() -> new ResourceNotFoundException("Gym not found"));
+    @GetMapping("/membership")
+    public List<MembershipPlan> getAllPlans(@PathVariable int gym_id) {
+        Gym gym = gymRepository.findById(gym_id).orElseThrow(() -> new ResourceNotFoundException("Gym not found"));
         return membershipPlanRepository.getAllByGym(gym);
     }
 
     @PutMapping("/plan/{planId}")
-    public ResponseEntity<MembershipPlan> updatePlan(HttpServletRequest request,@PathVariable Integer planId, @RequestBody NewMembershipPlan newMembershipPlan){
-        Claims claims = (Claims) request.getAttribute("sessionData");
-        Integer gymId = (Integer) claims.get("gym_id");
-        Gym gym = gymRepository.findById(gymId).orElseThrow(() -> new ResourceNotFoundException("Gym not found"));
-
+    public ResponseEntity<MembershipPlan> updatePlan(@PathVariable int gym_id,@PathVariable Integer planId, @RequestBody NewMembershipPlan newMembershipPlan){
+        Gym gym = gymRepository.findById(gym_id).orElseThrow(() -> new ResourceNotFoundException("Gym not found"));
         MembershipPlan existingPlan = membershipPlanRepository.findById(planId).orElseThrow(() -> new ResourceNotFoundException("Membership plan not found"));
         existingPlan.setPlanDuration(newMembershipPlan.plan_duration);
         existingPlan.setPrice(newMembershipPlan.price);
@@ -54,11 +49,9 @@ public class MemberShipPlansController {
     }
 
     @DeleteMapping("/plan/{planId}")
-    public ResponseEntity<?> deletePlan(HttpServletRequest request, @PathVariable Integer planId) {
+    public ResponseEntity<?> deletePlan(@PathVariable int gym_id, @PathVariable Integer planId) {
         Map<String, Object> res = new HashMap<>();
-        Claims claims = (Claims) request.getAttribute("sessionData");
-        Integer gymId = (Integer) claims.get("gym_id");
-        Gym gym = gymRepository.findById(gymId).orElseThrow(() -> new ResourceNotFoundException("Gym not found"));
+        Gym gym = gymRepository.findById(gym_id).orElseThrow(() -> new ResourceNotFoundException("Gym not found"));
         MembershipPlan planToDelete = membershipPlanRepository.findById(planId)
                 .orElseThrow(() -> new ResourceNotFoundException("Membership plan not found"));
 
@@ -73,10 +66,9 @@ public class MemberShipPlansController {
 
 
     @PostMapping("/plan")
-    public ResponseEntity<?> addingNewPlan(HttpServletRequest request, @RequestBody NewMembershipPlan newMembershipPlan){
-        Map<String,Object> res=new HashMap<>();
-        Claims claims = (Claims) request.getAttribute("sessionData");
-        Optional<Gym> optionalGYM=gymRepository.findById((Integer) claims.get("gym_id"));
+    public ResponseEntity<?> addingNewPlan(@PathVariable int gym_id, @RequestBody NewMembershipPlan newMembershipPlan){
+        Map<String, Object> res = new HashMap<>();
+        Optional<Gym> optionalGYM=gymRepository.findById(gym_id);
         if(optionalGYM.isEmpty()){
             res.put("error","gym not found");
             return ResponseEntity.status(404).body(res);

@@ -18,5 +18,4 @@ public interface MemberRepository extends JpaRepository<Member, Integer> {
 
     @Query("SELECT m FROM Member m WHERE m.gym.id = :gymId AND (m.phone = :phone OR m.email = :email)")
     List<Member> findDuplicates(@Param("gymId") int gymId, @Param("phone") String phone, @Param("email") String email);
-
 }
