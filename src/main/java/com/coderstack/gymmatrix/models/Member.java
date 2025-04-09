@@ -1,6 +1,6 @@
 package com.coderstack.gymmatrix.models;
 
-import com.coderstack.gymmatrix.enums.UserType;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 @Entity
@@ -22,6 +22,7 @@ public class Member {
     private String zip;
     @ManyToOne
     @JoinColumn(name = "gym_id",nullable = false)
+    @JsonIgnore
     private Gym gym;
 
     public void setGym(Gym gym) {

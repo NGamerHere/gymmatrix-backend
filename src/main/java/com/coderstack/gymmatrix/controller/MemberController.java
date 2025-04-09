@@ -81,6 +81,10 @@ public class MemberController {
         existingMember.setName(updatedMember.getName());
         existingMember.setPhone(updatedMember.getPhone());
         existingMember.setEmail(updatedMember.getEmail());
+        existingMember.setAddress(updatedMember.getAddress());
+        existingMember.setCity(updatedMember.getCity());
+        existingMember.setState(updatedMember.getState());
+        existingMember.setCountry(updatedMember.getCountry());
 
         memberRepository.save(existingMember);
         return sendSuccessResponse("Member updated successfully");

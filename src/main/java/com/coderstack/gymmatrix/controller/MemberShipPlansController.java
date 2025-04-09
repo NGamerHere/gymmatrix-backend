@@ -30,7 +30,7 @@ public class MemberShipPlansController {
     @Autowired
     private GymRepository gymRepository;
 
-    @GetMapping("/membership")
+    @GetMapping("/plan")
     public List<MembershipPlan> getAllPlans(@PathVariable int gym_id) {
         Gym gym = gymRepository.findById(gym_id).orElseThrow(() -> new ResourceNotFoundException("Gym not found"));
         return membershipPlanRepository.getAllByGym(gym);

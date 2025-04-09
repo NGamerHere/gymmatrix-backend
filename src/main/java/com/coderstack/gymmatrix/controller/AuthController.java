@@ -39,6 +39,7 @@ public class AuthController {
                     , "user_id", admin.getId()
                     , "gym_id", gym.getId()
             );
+            System.out.println("gym ID is :"+gym.getId());
             String token = jwtUtil.generateToken(admin.getEmail(), claims);
             res.put("token", token);
             return ResponseEntity.ok(res);

@@ -96,14 +96,10 @@ public class MembershipController {
     @PutMapping("/membership/{membershipId}/deactivate")
     public ResponseEntity<?> deactivateMembership(@PathVariable Integer membershipId) {
         Map<String, Object> res = new HashMap<>();
-
         Membership membership = membershipRepository.findById(membershipId)
                 .orElseThrow(() -> new RuntimeException("Membership not found"));
-
         membership.setActive(false);
-
-        Membership updatedMembership = membershipRepository.save(membership);
-
+        membershipRepository.save(membership);
         res.put("message", "Membership deactivated successfully");
         return ResponseEntity.ok(res);
     }
