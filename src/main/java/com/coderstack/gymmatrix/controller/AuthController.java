@@ -27,7 +27,7 @@ public class AuthController {
 
     @PostMapping("signin")
     public ResponseEntity<?> adminSignIn(@RequestBody SignIn signData) {
-        Map<String, String> res = new HashMap<>();
+        Map<String, Object> res = new HashMap<>();
         if (signData.role == UserType.admin) {
             Admin admin = adminRepository.findByEmail(signData.email);
             if(admin == null || !admin.comparePassword(signData.password) ) {
@@ -39,9 +39,10 @@ public class AuthController {
                     , "user_id", admin.getId()
                     , "gym_id", gym.getId()
             );
-            System.out.println("gym ID is :"+gym.getId());
             String token = jwtUtil.generateToken(admin.getEmail(), claims);
             res.put("token", token);
+            res.put("user_id",admin.getId());
+            res.put("gym_id",gym.getId());
             return ResponseEntity.ok(res);
         } else {
             res.put("message", "currently only admin can login");
