@@ -19,7 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/dashboard")
+@RequestMapping("/api/admin/{gym_id}")
 public class MembershipController {
 
     @Autowired
@@ -35,14 +35,10 @@ public class MembershipController {
     private MemberRepository memberRepository;
 
 
-    @PostMapping("/membership")
-    public ResponseEntity<?> createMembership(HttpServletRequest request, @RequestBody MembershipRequest membershipRequest) {
+    @PostMapping("/memberships")
+    public ResponseEntity<?> createMembership(@RequestBody MembershipRequest membershipRequest , @PathVariable int gym_id ) {
         Map<String, Object> res = new HashMap<>();
-
-        Claims claims = (Claims) request.getAttribute("sessionData");
-        Integer gymId = (Integer) claims.get("gym_id");
-
-        Gym gym = gymRepository.findById(gymId).orElseThrow(() -> new RuntimeException("Gym not found"));
+        Gym gym = gymRepository.findById(gym_id).orElseThrow(() -> new RuntimeException("Gym not found"));
         MembershipPlan plan = membershipPlanRepository.findById(membershipRequest.getPlanId())
                 .orElseThrow(() -> new RuntimeException("Membership plan not found"));
         Member member = memberRepository.findById(membershipRequest.getUserId())
@@ -65,11 +61,8 @@ public class MembershipController {
 
 
     @GetMapping("/memberships")
-    public ResponseEntity<?> getAllMemberships(HttpServletRequest request) {
-        Claims claims = (Claims) request.getAttribute("sessionData");
-        Integer gymId = (Integer) claims.get("gym_id");
-
-        Gym gym = gymRepository.findById(gymId).orElseThrow(() -> new RuntimeException("Gym not found"));
+    public ResponseEntity<?> getAllMemberships(@PathVariable int gym_id) {
+        Gym gym = gymRepository.findById(gym_id).orElseThrow(() -> new RuntimeException("Gym not found"));
         return ResponseEntity.ok(membershipRepository.findByGym(gym));
     }
 
