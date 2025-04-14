@@ -1,5 +1,6 @@
 package com.coderstack.gymmatrix.controller;
 
+import com.coderstack.gymmatrix.dto.MembershipResponseDTO;
 import com.coderstack.gymmatrix.models.Gym;
 import com.coderstack.gymmatrix.models.Member;
 import com.coderstack.gymmatrix.models.Membership;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -67,7 +69,20 @@ public class MembershipController {
     @GetMapping("/memberships")
     public ResponseEntity<?> getAllMemberships(@PathVariable int gym_id) {
         Gym gym = gymRepository.findById(gym_id).orElseThrow(() -> new RuntimeException("Gym not found"));
-        return ResponseEntity.ok(membershipRepository.findByGym(gym));
+        List<Membership> memberships=membershipRepository.findByGym(gym);
+        List<MembershipResponseDTO> response = memberships.stream().map(m -> new MembershipResponseDTO(
+                m.getId(),
+                m.getUser().getName(),
+                m.getUser().getEmail(),
+                m.getMembershipPlan().getPlanName(),
+                m.getMembershipPlan().getPrice(),
+                m.getStartDate(),
+                m.getEndDate(),
+                m.isActive(),
+                m.getMembershipPlan().getId(),
+                m.getMembershipPlan().getPlanDuration()
+        )).toList();
+        return ResponseEntity.ok(response);
     }
 
     @PutMapping("/membership/{membershipId}")
