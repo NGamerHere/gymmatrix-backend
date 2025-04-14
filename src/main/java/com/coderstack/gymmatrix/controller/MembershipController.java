@@ -8,8 +8,6 @@ import com.coderstack.gymmatrix.repository.GymRepository;
 import com.coderstack.gymmatrix.repository.MemberRepository;
 import com.coderstack.gymmatrix.repository.MembershipPlanRepository;
 import com.coderstack.gymmatrix.repository.MembershipRepository;
-import io.jsonwebtoken.Claims;
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -43,6 +41,12 @@ public class MembershipController {
                 .orElseThrow(() -> new RuntimeException("Membership plan not found"));
         Member member = memberRepository.findById(membershipRequest.getUserId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Membership planMembership = membershipRepository.getByMemberAndGym(member, gym);
+        if (planMembership != null) {
+            res.put("error", "this user already has membership plan");
+            return ResponseEntity.status(400).body(res);
+        }
 
         Membership membership = new Membership();
         membership.setGym(gym);

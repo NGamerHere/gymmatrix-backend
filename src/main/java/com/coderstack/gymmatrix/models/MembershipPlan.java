@@ -17,6 +17,7 @@ public class MembershipPlan {
     @JoinColumn(name = "gym_id", nullable = false)
     @JsonIgnore
     private Gym gym;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
     @Column(name = "updated_at")

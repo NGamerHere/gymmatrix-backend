@@ -23,6 +23,10 @@ public class AdminInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws IOException {
+        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+            response.setStatus(HttpServletResponse.SC_OK);
+            return false;
+        }
         Claims claims = jwtService.extractClaimsFromRequest(request);
         if (claims == null || !jwtService.hasRole(claims, UserType.admin)) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN, "Invalid or expired token");

@@ -1,0 +1,13 @@
+"name":"",
+"password":"",
+"email":"",
+"phone":"",
+"gender":"",
+"age":"",
+"address":"",
+"city":"",
+"state":"",
+"country":"",
+"zip":"",
+"phone_number":"",
+"userType":""
