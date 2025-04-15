@@ -32,6 +32,10 @@ public class AdminInterceptor implements HandlerInterceptor {
             response.sendError(HttpServletResponse.SC_FORBIDDEN, "Invalid or expired token");
             return false;
         }
+        if(!gymAccessValidator.Ipvalidate(request,claims)){
+            response.sendError(HttpServletResponse.SC_FORBIDDEN, "you cant access this resource");
+            return false;
+        }
 
         if (!gymAccessValidator.validateAccess(request, claims)) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN, "Access to this gym is forbidden");

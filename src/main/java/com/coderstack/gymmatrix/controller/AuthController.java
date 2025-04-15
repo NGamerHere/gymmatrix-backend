@@ -6,6 +6,7 @@ import com.coderstack.gymmatrix.models.Admin;
 import com.coderstack.gymmatrix.models.Gym;
 import com.coderstack.gymmatrix.repository.AdminRepository;
 import com.coderstack.gymmatrix.utils.JwtUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -26,8 +27,9 @@ public class AuthController {
     private JwtUtil jwtUtil;
 
     @PostMapping("signin")
-    public ResponseEntity<?> adminSignIn(@RequestBody SignIn signData) {
+    public ResponseEntity<?> adminSignIn(HttpServletRequest request, @RequestBody SignIn signData) {
         Map<String, Object> res = new HashMap<>();
+        String ipAddress = request.getRemoteAddr();;
         if (signData.role == UserType.admin) {
             Admin admin = adminRepository.findByEmail(signData.email);
             if(admin == null || !admin.comparePassword(signData.password) ) {
@@ -38,6 +40,7 @@ public class AuthController {
             Map<String, Object> claims = Map.of("role", UserType.admin
                     , "user_id", admin.getId()
                     , "gym_id", gym.getId()
+                    , "Ip",ipAddress
             );
             String token = jwtUtil.generateToken(admin.getEmail(), claims);
             res.put("token", token);
