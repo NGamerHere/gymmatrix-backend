@@ -1,14 +1,12 @@
 package com.coderstack.gymmatrix.controller;
 
 import com.coderstack.gymmatrix.dto.MembershipResponseDTO;
-import com.coderstack.gymmatrix.models.Gym;
-import com.coderstack.gymmatrix.models.Member;
-import com.coderstack.gymmatrix.models.Membership;
-import com.coderstack.gymmatrix.models.MembershipPlan;
-import com.coderstack.gymmatrix.repository.GymRepository;
-import com.coderstack.gymmatrix.repository.MemberRepository;
-import com.coderstack.gymmatrix.repository.MembershipPlanRepository;
-import com.coderstack.gymmatrix.repository.MembershipRepository;
+import com.coderstack.gymmatrix.enums.PaymentType;
+import com.coderstack.gymmatrix.models.*;
+import com.coderstack.gymmatrix.repository.*;
+import io.jsonwebtoken.Claims;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -34,9 +32,15 @@ public class MembershipController {
     @Autowired
     private MemberRepository memberRepository;
 
+    @Autowired
+    private AdminRepository adminRepository;
+
+    @Autowired
+    private PaymentRepository paymentRepository;
+
 
     @PostMapping("/memberships")
-    public ResponseEntity<?> createMembership(@RequestBody MembershipRequest membershipRequest , @PathVariable int gym_id ) {
+    public ResponseEntity<?> createMembership(HttpServletRequest request, @RequestBody MembershipRequest membershipRequest , @PathVariable int gym_id) {
         Map<String, Object> res = new HashMap<>();
         Gym gym = gymRepository.findById(gym_id).orElseThrow(() -> new RuntimeException("Gym not found"));
         MembershipPlan plan = membershipPlanRepository.findById(membershipRequest.getPlanId())
@@ -59,6 +63,20 @@ public class MembershipController {
         membership.setActive(true);
 
         Membership savedMembership = membershipRepository.save(membership);
+
+        Claims claims = (Claims) request.getAttribute("sessionData");
+        int user_id = (int) claims.get("user_id");
+
+        Payment newpayment=new Payment();
+        newpayment.setAmount(plan.getPrice());
+        newpayment.setRefID(membershipRequest.refID);
+        newpayment.setGym(gym);
+        newpayment.setPaymentType(membershipRequest.paymentType);
+        newpayment.setMembershipPlan(plan);
+        newpayment.setCollectedByAdmin(adminRepository.findById(user_id).orElseThrow(() -> new RuntimeException("Admin not found")));
+        newpayment.setCollectedOn(LocalDateTime.now());
+        newpayment.setMember(member);
+        paymentRepository.save(newpayment);
 
         res.put("message", "Membership created successfully");
         res.put("membershipId", savedMembership.getId());
@@ -132,6 +150,8 @@ public class MembershipController {
     public static class MembershipRequest {
         private Integer planId;
         private Integer userId;
+        public PaymentType paymentType;
+        public String refID;
 
 
         public Integer getPlanId() {
