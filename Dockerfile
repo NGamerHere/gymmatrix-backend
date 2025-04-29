@@ -1,4 +1,4 @@
-FROM docker.io/library/eclipse-temurin:21-jdk-jammy
+FROM docker.io/library/eclipse-temurin:21-jdk-jammy as deps
 
 WORKDIR /app
 
