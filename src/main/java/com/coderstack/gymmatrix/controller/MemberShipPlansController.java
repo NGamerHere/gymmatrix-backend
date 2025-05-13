@@ -36,7 +36,7 @@ public class MemberShipPlansController {
 
     @PutMapping("/plan/{planId}")
     public ResponseEntity<MembershipPlan> updatePlan(@PathVariable int gym_id,@PathVariable Integer planId, @RequestBody NewMembershipPlan newMembershipPlan){
-        Gym gym = gymRepository.findById(gym_id).orElseThrow(() -> new ResourceNotFoundException("Gym not found"));
+        gymRepository.findById(gym_id).orElseThrow(() -> new ResourceNotFoundException("Gym not found"));
         MembershipPlan existingPlan = membershipPlanRepository.findById(planId).orElseThrow(() -> new ResourceNotFoundException("Membership plan not found"));
         existingPlan.setPlanDuration(newMembershipPlan.plan_duration);
         existingPlan.setPrice(newMembershipPlan.price);
