@@ -10,6 +10,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 
 import java.io.IOException;
 
+@SuppressWarnings("null")
 @Component
 public class AuthInterceptor implements HandlerInterceptor {
 

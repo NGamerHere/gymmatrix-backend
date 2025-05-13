@@ -21,6 +21,7 @@ public class AdminInterceptor implements HandlerInterceptor {
     @Autowired
     GymAccessValidator gymAccessValidator;
 
+    @SuppressWarnings("null")
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws IOException {
         if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {

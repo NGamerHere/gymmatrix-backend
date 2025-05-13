@@ -1,7 +1,6 @@
 package com.coderstack.gymmatrix.models;
 
 import com.coderstack.gymmatrix.enums.UserType;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 @Entity
