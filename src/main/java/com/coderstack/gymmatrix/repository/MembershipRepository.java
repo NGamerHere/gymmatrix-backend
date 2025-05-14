@@ -12,5 +12,5 @@ import java.util.List;
 public interface MembershipRepository extends JpaRepository<Membership, Integer> {
     public List<Membership> findByGym(Gym gym);
 
-    Membership getByMemberAndGym(Member member, Gym gym);
+    Membership getByMemberAndGymAndActiveTrue(Member member, Gym gym);
 }

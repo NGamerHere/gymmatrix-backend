@@ -48,7 +48,7 @@ public class MembershipController {
         Member member = memberRepository.findById(membershipRequest.getUserId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        Membership planMembership = membershipRepository.getByMemberAndGym(member, gym);
+        Membership planMembership = membershipRepository.getByMemberAndGymAndActiveTrue(member, gym);
         if (planMembership != null) {
             res.put("error", "this user already has membership plan");
             return ResponseEntity.status(400).body(res);
@@ -76,6 +76,7 @@ public class MembershipController {
         newpayment.setCollectedByAdmin(adminRepository.findById(user_id).orElseThrow(() -> new RuntimeException("Admin not found")));
         newpayment.setCollectedOn(LocalDateTime.now());
         newpayment.setMember(member);
+        newpayment.setMembership(membership);
         paymentRepository.save(newpayment);
 
         res.put("message", "Membership created successfully");

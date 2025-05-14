@@ -35,6 +35,18 @@ public class Payment {
     @JoinColumn(name = "membership_plan_id")
     private MembershipPlan membershipPlan;
 
+    @ManyToOne
+    @JoinColumn(name = "membership_id")
+    private  Membership membership;
+
+    public Membership getMembership() {
+        return membership;
+    }
+
+    public void setMembership(Membership membership) {
+        this.membership = membership;
+    }
+
     public MembershipPlan getMembershipPlan() {
         return membershipPlan;
     }

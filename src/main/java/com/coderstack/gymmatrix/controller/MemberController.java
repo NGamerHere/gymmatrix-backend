@@ -51,9 +51,8 @@ public class MemberController {
         }
 
         newMember.setGym(gym);
-        memberRepository.save(newMember);
-
-        return sendSuccessResponse("New member saved successfully");
+        Member member=memberRepository.save(newMember);
+        return sendSuccessResponse("New member saved successfully", member.getId());
     }
 
     @GetMapping("/member")
@@ -63,6 +62,23 @@ public class MemberController {
             return sendErrorResponse("Gym not found", 404);
         }
         return ResponseEntity.ok(adminStatsService.getMembers((long) gym_id));
+    }
+
+    @GetMapping("/member/{member_id}")
+    public ResponseEntity<?> getMember(@PathVariable int gym_id, @PathVariable int member_id) {
+        Optional<Gym> gymOpt = getGymById(gym_id);
+        if (gymOpt.isEmpty()) {
+            return sendErrorResponse("Gym not found", 404);
+        }
+        Map<String, Object> res = new HashMap<>();
+        Optional<Member> op_member=memberRepository.findById(member_id);
+        if (op_member.isEmpty()) {
+            return sendErrorResponse("Member not found", 404);
+        }
+        Member member=op_member.get();
+        res.put("memberInfo",member);
+        res.put("planHistory", memberRepository.findPaymentDetailsByGymIdAndMemberId(gym_id, member_id));
+        return ResponseEntity.ok(res);
     }
 
     @PutMapping("/member/{member_id}")
@@ -129,6 +145,13 @@ public class MemberController {
     private ResponseEntity<Map<String, String>> sendSuccessResponse(String message) {
         Map<String, String> res = new HashMap<>();
         res.put("message", message);
+        return ResponseEntity.ok(res);
+    }
+    private ResponseEntity<Map<String, String>> sendSuccessResponse(String message, int id) {
+        Map<String, String> res = new HashMap<>();
+        res.put("message", message);
+        res.put("id", String.valueOf(id));
+
         return ResponseEntity.ok(res);
     }
 }
