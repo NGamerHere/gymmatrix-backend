@@ -4,6 +4,7 @@ import com.coderstack.gymmatrix.models.Gym;
 import com.coderstack.gymmatrix.models.Member;
 import com.coderstack.gymmatrix.repository.GymRepository;
 import com.coderstack.gymmatrix.repository.MemberRepository;
+import com.coderstack.gymmatrix.service.AdminStatsService;
 import com.coderstack.gymmatrix.service.DuplicateCheckService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +27,9 @@ public class MemberController {
 
     @Autowired
     private DuplicateCheckService duplicateCheckService;
+
+    @Autowired
+    private AdminStatsService adminStatsService;
 
     @PostMapping("/member")
     public ResponseEntity<?> addNewUser(@PathVariable int gym_id, @RequestBody Member newMember) {
@@ -58,8 +62,7 @@ public class MemberController {
         if (gymOpt.isEmpty()) {
             return sendErrorResponse("Gym not found", 404);
         }
-
-        return ResponseEntity.ok(memberRepository.findByGym(gymOpt.get()));
+        return ResponseEntity.ok(adminStatsService.getMembers((long) gym_id));
     }
 
     @PutMapping("/member/{member_id}")

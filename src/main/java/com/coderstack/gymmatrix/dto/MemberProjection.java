@@ -5,4 +5,6 @@ public interface MemberProjection {
     String getPlanName();
     Integer getPlanDuration();
     Boolean getActive();
+    Integer getMemberId();
+    String getEmail();
 }

@@ -20,23 +20,22 @@ public interface AdminStatsRepository extends JpaRepository<Member, Integer> {
     Double getTotalRevenue(@Param("gymId") Long gymId);
 
     @Query(value = """
-    SELECT 
-        m.name AS name,
-        p.plan_name AS planName,
-        p.plan_duration AS planDuration,
-        active
-    FROM 
-        membership 
-        INNER JOIN membership_plans p ON p.id = membership.membership_plan_id 
-        INNER JOIN members m ON membership.user_id = m.id 
-    WHERE 
-        membership.gym_id = :gym_id 
-        AND membership.active = 1
-    """, nativeQuery = true)
+            SELECT 
+                    m.id AS memberId,
+                    m.email AS email,
+                m.name AS name,
+                p.plan_name AS planName,
+                p.plan_duration AS planDuration,
+                active
+            FROM 
+                membership 
+                INNER JOIN membership_plans p ON p.id = membership.membership_plan_id 
+                INNER JOIN members m ON membership.user_id = m.id 
+            WHERE 
+                membership.gym_id = :gym_id 
+                AND membership.active = 1
+            """, nativeQuery = true)
     List<MemberProjection> getMember(@Param("gym_id") Long gym_id);
-
-
-
 }
 
 
