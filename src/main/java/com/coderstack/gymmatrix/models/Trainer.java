@@ -1,12 +1,13 @@
 package com.coderstack.gymmatrix.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.coderstack.gymmatrix.models.Trainer;
+import com.coderstack.gymmatrix.enums.UserType;
 import jakarta.persistence.*;
 
+import java.util.List;
+
 @Entity
-@Table(name = "members")
-public class Member {
+@Table(name = "trainers")
+public class Trainer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
@@ -21,21 +22,30 @@ public class Member {
     private String state;
     private String country;
     private String zip;
+
     @ManyToOne
     @JoinColumn(name = "gym_id",nullable = false)
-    @JsonIgnore
     private Gym gym;
 
-    @ManyToOne
-    @JoinColumn(name = "trainer_id")
-    private Trainer trainer;
+    @OneToMany(mappedBy = "trainer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Member> members;
 
-    public Trainer getTrainer() {
-        return trainer;
+    public List<Member> getMembers() {
+        return members;
+    }
+    public void setMembers(List<Member> members) {
+        this.members = members;
     }
 
-    public void setTrainer(Trainer trainer) {
-        this.trainer = trainer;
+    public void addMember(Member member) {
+        this.members.add(member);
+        member.setTrainer(this);
+    }
+
+
+    public void removeMember(Member member) {
+        this.members.remove(member);
+        member.setTrainer(null);
     }
 
     public void setGym(Gym gym) {
