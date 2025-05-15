@@ -1,0 +1,39 @@
+<!-- src/main/resources/templates/email/welcome.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Welcome</title>
+</head>
+<body style="font-family: Arial; background-color: #f4f4f4; padding: 20px;">
+<table style="max-width:600px; margin:auto; background-color:#fff; border-radius:10px;">
+    <tr>
+        <td style="background-color:#2d2d2d; color:white; text-align:center; padding:20px; border-radius:10px 10px 0 0;">
+            <h2>Welcome to <span style="color:#f39c12;">GYMmatrix</span></h2>
+        </td>
+    </tr>
+    <tr>
+        <td style="padding:30px; color:#333;">
+            <p>Hello <strong th:text="${name}">Trainer</strong>,</p>
+            <p>We’re excited to have you on board with GYMmatrix. Start managing your sessions and members easily.</p>
+            <p>Login with your email and password:</p>
+            <p><strong>Email:</strong> <span th:text="${email}">trainer@example.com</span></p>
+            <p><strong>Password:</strong> <span th:text="${password}">yourPassword123</span></p>
+            <p>Click the button below to access your dashboard:</p>
+            <p style="text-align:center;">
+                <a th:href="@{${dashboardUrl}}"
+                   style="background-color:#f39c12; color:white; padding:10px 20px; text-decoration:none; border-radius:5px;">
+                    Go to Dashboard
+                </a>
+            </p>
+            <p>Best regards,<br>GYM Matrix Team</p>
+        </td>
+    </tr>
+    <tr>
+        <td style="background-color:#eeeeee; text-align:center; padding:15px; font-size:12px; color:#666; border-radius:0 0 10px 10px;">
+            © 2025 GYMMatrix. All rights reserved.
+        </td>
+    </tr>
+</table>
+</body>
+</html>
