@@ -1,5 +1,6 @@
 package com.coderstack.gymmatrix.controller;
 
+import com.coderstack.gymmatrix.enums.UserType;
 import com.coderstack.gymmatrix.models.Gym;
 import com.coderstack.gymmatrix.models.Member;
 import com.coderstack.gymmatrix.repository.GymRepository;
@@ -13,6 +14,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+
+import static com.coderstack.gymmatrix.service.RespoanceService.sendErrorResponse;
+import static com.coderstack.gymmatrix.service.RespoanceService.sendSuccessResponse;
 
 @RestController
 @CrossOrigin
@@ -40,7 +44,7 @@ public class MemberController {
 
         Gym gym = gymOpt.get();
         Map<String, String> duplicate = duplicateCheckService.checkDuplicate(
-                gym.getId(), newMember.getPhone(), newMember.getEmail());
+                gym.getId(), newMember.getPhone(), newMember.getEmail(), UserType.member);
 
         if (!duplicate.isEmpty()) {
             if (duplicate.get("phone") != null) {
@@ -134,24 +138,5 @@ public class MemberController {
 
     private Optional<Gym> getGymById(int gymId) {
         return gymRepository.findById(gymId);
-    }
-
-    private ResponseEntity<Map<String, String>> sendErrorResponse(String error, int status) {
-        Map<String, String> res = new HashMap<>();
-        res.put("error", error);
-        return ResponseEntity.status(status).body(res);
-    }
-
-    private ResponseEntity<Map<String, String>> sendSuccessResponse(String message) {
-        Map<String, String> res = new HashMap<>();
-        res.put("message", message);
-        return ResponseEntity.ok(res);
-    }
-    private ResponseEntity<Map<String, String>> sendSuccessResponse(String message, int id) {
-        Map<String, String> res = new HashMap<>();
-        res.put("message", message);
-        res.put("id", String.valueOf(id));
-
-        return ResponseEntity.ok(res);
     }
 }
