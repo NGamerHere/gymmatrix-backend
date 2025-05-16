@@ -17,7 +17,7 @@ import java.util.Map;
 
 @RestController
 @CrossOrigin
-@RequestMapping("/api/admin/{gym_id}")
+@RequestMapping("/api/gym/{gym_id}/admin/{admin_id}")
 public class MembershipController {
 
     @Autowired

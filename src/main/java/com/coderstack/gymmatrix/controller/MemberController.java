@@ -20,7 +20,7 @@ import static com.coderstack.gymmatrix.service.RespoanceService.sendSuccessRespo
 
 @RestController
 @CrossOrigin
-@RequestMapping("/api/admin/{gym_id}")
+@RequestMapping("/api/gym/{gym_id}/admin/{admin_id}")
 public class MemberController {
 
     @Autowired

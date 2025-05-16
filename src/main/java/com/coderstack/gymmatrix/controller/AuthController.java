@@ -61,7 +61,8 @@ public class AuthController {
                 return ResponseEntity.status(401).body(res);
             }
             Gym gym = trainer.getGym();
-            Map<String, Object> claims = Map.of("role", UserType.admin
+            Map<String, Object> claims = Map.of("role",
+                     UserType.trainer
                     , "user_id", trainer.getId()
                     , "gym_id", gym.getId()
                     , "Ip",ipAddress

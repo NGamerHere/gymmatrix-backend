@@ -18,7 +18,7 @@ public class DashboardController {
     @Autowired
     AdminStatsService adminStatsService;
 
-    @GetMapping("/api/admin/{gym_id}/dashboard")
+    @GetMapping("/api/gym/{gym_id}/admin/{admin_id}/dashboard")
     public ResponseEntity<Map<String, Object>> getStats(@PathVariable Long gym_id) {
         Map<String, Object> stats = new HashMap<>();
         stats.put("totalMembers", adminStatsService.getTotalMembers(gym_id));

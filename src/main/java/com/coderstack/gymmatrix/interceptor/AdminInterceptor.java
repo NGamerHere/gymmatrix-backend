@@ -21,30 +21,42 @@ public class AdminInterceptor implements HandlerInterceptor {
     @Autowired
     GymAccessValidator gymAccessValidator;
 
-    @SuppressWarnings("null")
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws IOException {
-        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
-            response.setStatus(HttpServletResponse.SC_OK);
-            return false;
-        }
-        Claims claims = jwtService.extractClaimsFromRequest(request);
-        if (claims == null || !jwtService.hasRole(claims, UserType.admin)) {
-            response.sendError(HttpServletResponse.SC_FORBIDDEN, "Invalid or expired token");
-            return false;
-        }
-        if(!gymAccessValidator.Ipvalidate(request,claims)){
-            response.sendError(HttpServletResponse.SC_FORBIDDEN, "you cant access this resource");
-            return false;
-        }
+        try {
+            if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+                response.setStatus(HttpServletResponse.SC_OK);
+                return false;
+            }
+            String[] parts = request.getRequestURI().split("/");
+            UserType userType = UserType.valueOf(parts[4]);
+            System.out.println(userType);
+            if (userType == null) {
+                response.sendError(HttpServletResponse.SC_NOT_FOUND, "Invalid role");
+                return false;
+            }
+            Claims claims = jwtService.extractClaimsFromRequest(request);
+            if (claims == null || !jwtService.hasRole(claims, userType)) {
+                response.sendError(HttpServletResponse.SC_FORBIDDEN, "Invalid or expired token");
+                return false;
+            }
+            if (!gymAccessValidator.Ipvalidate(request, claims)) {
+                response.sendError(HttpServletResponse.SC_FORBIDDEN, "you cant access this resource");
+                return false;
+            }
 
-        if (!gymAccessValidator.validateAccess(request, claims)) {
-            response.sendError(HttpServletResponse.SC_FORBIDDEN, "Access to this gym is forbidden");
+            if (!gymAccessValidator.validateAccess(request, claims)) {
+                response.sendError(HttpServletResponse.SC_FORBIDDEN, "Access to this gym is forbidden");
+                return false;
+            }
+
+            request.setAttribute("sessionData", claims);
+            return true;
+        }catch (IllegalArgumentException e) {
+            System.out.println("Illegal Argument Exception: " + e.getMessage());
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid status value");
             return false;
         }
-
-        request.setAttribute("sessionData", claims);
-        return true;
     }
 }
 
