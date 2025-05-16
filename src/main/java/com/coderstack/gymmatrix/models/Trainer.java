@@ -1,6 +1,8 @@
 package com.coderstack.gymmatrix.models;
 
 import com.coderstack.gymmatrix.enums.UserType;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
 import java.util.List;
@@ -22,12 +24,15 @@ public class Trainer {
     private String state;
     private String country;
     private String zip;
+    private UserType userType;
 
     @ManyToOne
+    @JsonIgnore
     @JoinColumn(name = "gym_id",nullable = false)
     private Gym gym;
 
     @OneToMany(mappedBy = "trainer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonManagedReference
     private List<Member> members;
 
     public List<Member> getMembers() {
@@ -46,6 +51,14 @@ public class Trainer {
     public void removeMember(Member member) {
         this.members.remove(member);
         member.setTrainer(null);
+    }
+
+    public UserType getUserType() {
+        return userType;
+    }
+
+    public void setUserType(UserType userType) {
+        this.userType = userType;
     }
 
     public void setGym(Gym gym) {

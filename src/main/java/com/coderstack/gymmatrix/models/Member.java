@@ -1,5 +1,6 @@
 package com.coderstack.gymmatrix.models;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.coderstack.gymmatrix.models.Trainer;
 import jakarta.persistence.*;
@@ -27,6 +28,7 @@ public class Member {
     private Gym gym;
 
     @ManyToOne
+    @JsonBackReference
     @JoinColumn(name = "trainer_id")
     private Trainer trainer;
 
