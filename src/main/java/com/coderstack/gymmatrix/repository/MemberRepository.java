@@ -34,7 +34,7 @@ public interface MemberRepository extends JpaRepository<Member, Integer> {
             "INNER JOIN p.membershipPlan mp " +
             "INNER JOIN p.membership m " +
             "INNER JOIN p.collectedByAdmin a " +
-            "WHERE p.gym.id = :gymId AND p.member.id = :memberId order by m.status desc")
+            "WHERE p.gym.id = :gymId AND p.member.id = :memberId order by m.status asc")
     List<MembershipHistory> findPaymentDetailsByGymIdAndMemberId(@Param("gymId") Integer gymId, @Param("memberId") Integer memberId);
 
 }

@@ -55,7 +55,6 @@ public class MembershipController {
                 : now;
 
         int countInfo=membershipRepository.findActiveOrUpcomingMembership(membershipRequest.getUserId(),gym_id,startDate);
-        System.out.println(countInfo);
         if (countInfo > 0){
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM d, yyyy 'at' hh:mm a");
             String formattedDate = startDate.format(formatter);
@@ -86,6 +85,7 @@ public class MembershipController {
         payment.setAmount(plan.getPrice());
         payment.setRefID(membershipRequest.getRefID());
         payment.setGym(gym);
+        payment.setMembershipPlan(plan);
         payment.setPaymentType(membershipRequest.getPaymentType());
         payment.setCollectedByAdmin(collectedByAdmin);
         payment.setCollectedOn(now);
