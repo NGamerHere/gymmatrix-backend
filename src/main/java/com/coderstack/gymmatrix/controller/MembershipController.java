@@ -1,7 +1,9 @@
 package com.coderstack.gymmatrix.controller;
 
 import com.coderstack.gymmatrix.dto.MembershipResponseDTO;
-import com.coderstack.gymmatrix.enums.PaymentType;
+import com.coderstack.gymmatrix.dto.MembershipRequest;
+import com.coderstack.gymmatrix.enums.PlanStatus;
+import java.time.format.DateTimeFormatter;
 import com.coderstack.gymmatrix.models.*;
 import com.coderstack.gymmatrix.repository.*;
 import io.jsonwebtoken.Claims;
@@ -40,49 +42,62 @@ public class MembershipController {
 
 
     @PostMapping("/memberships")
-    public ResponseEntity<?> createMembership(HttpServletRequest request, @RequestBody MembershipRequest membershipRequest , @PathVariable int gym_id) {
-        Map<String, Object> res = new HashMap<>();
+    public ResponseEntity<?> createMembership(HttpServletRequest request, @RequestBody MembershipRequest membershipRequest, @PathVariable int gym_id) {
         Gym gym = gymRepository.findById(gym_id).orElseThrow(() -> new RuntimeException("Gym not found"));
         MembershipPlan plan = membershipPlanRepository.findById(membershipRequest.getPlanId())
                 .orElseThrow(() -> new RuntimeException("Membership plan not found"));
         Member member = memberRepository.findById(membershipRequest.getUserId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        Membership planMembership = membershipRepository.getByMemberAndGymAndActiveTrue(member, gym);
-        if (planMembership != null) {
-            res.put("error", "this user already has membership plan");
-            return ResponseEntity.status(400).body(res);
+        LocalDateTime now = LocalDateTime.now().withNano(0);
+        LocalDateTime startDate = membershipRequest.getStartDate() != null
+                ? membershipRequest.getStartDate().withNano(0)
+                : now;
+
+        int countInfo=membershipRepository.findActiveOrUpcomingMembership(membershipRequest.getUserId(),gym_id,startDate);
+        System.out.println(countInfo);
+        if (countInfo > 0){
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM d, yyyy 'at' hh:mm a");
+            String formattedDate = startDate.format(formatter);
+            return ResponseEntity.status(400).body(Map.of("error", "This user already has an active or upcoming membership plan at the following time "+ formattedDate));
+        }
+
+        if (startDate.isBefore(now)) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Start date cannot be in the past"));
         }
 
         Membership membership = new Membership();
         membership.setGym(gym);
         membership.setMembershipPlan(plan);
         membership.setUser(member);
-        membership.setStartDate(LocalDateTime.now());
-        membership.setEndDate(LocalDateTime.now().plusMonths(plan.getPlanDuration()));
+        membership.setStartDate(startDate);
+        membership.setEndDate(startDate.plusMonths(plan.getPlanDuration()));
+        membership.setStatus(startDate.equals(now) ? PlanStatus.ACTIVE : PlanStatus.UPCOMING);
         membership.setActive(true);
 
         Membership savedMembership = membershipRepository.save(membership);
 
         Claims claims = (Claims) request.getAttribute("sessionData");
-        int user_id = (int) claims.get("user_id");
+        int adminId = (int) claims.get("user_id");
+        Admin collectedByAdmin = adminRepository.findById(adminId)
+                .orElseThrow(() -> new RuntimeException("Admin not found"));
 
-        Payment newpayment=new Payment();
-        newpayment.setAmount(plan.getPrice());
-        newpayment.setRefID(membershipRequest.refID);
-        newpayment.setGym(gym);
-        newpayment.setPaymentType(membershipRequest.paymentType);
-        newpayment.setMembershipPlan(plan);
-        newpayment.setCollectedByAdmin(adminRepository.findById(user_id).orElseThrow(() -> new RuntimeException("Admin not found")));
-        newpayment.setCollectedOn(LocalDateTime.now());
-        newpayment.setMember(member);
-        newpayment.setMembership(membership);
-        paymentRepository.save(newpayment);
-
-        res.put("message", "Membership created successfully");
-        res.put("membershipId", savedMembership.getId());
-        return ResponseEntity.ok(res);
+        Payment payment = new Payment();
+        payment.setAmount(plan.getPrice());
+        payment.setRefID(membershipRequest.getRefID());
+        payment.setGym(gym);
+        payment.setPaymentType(membershipRequest.getPaymentType());
+        payment.setCollectedByAdmin(collectedByAdmin);
+        payment.setCollectedOn(now);
+        payment.setMember(member);
+        payment.setMembership(savedMembership);
+        paymentRepository.save(payment);
+        return ResponseEntity.ok(Map.of(
+                "message", "Membership created successfully",
+                "membershipId", savedMembership.getId()
+        ));
     }
+
 
 
     @GetMapping("/memberships")
@@ -146,29 +161,5 @@ public class MembershipController {
 
         res.put("message", "Membership deleted successfully");
         return ResponseEntity.ok(res);
-    }
-
-    public static class MembershipRequest {
-        private Integer planId;
-        private Integer userId;
-        public PaymentType paymentType;
-        public String refID;
-
-
-        public Integer getPlanId() {
-            return planId;
-        }
-
-        public void setPlanId(Integer planId) {
-            this.planId = planId;
-        }
-
-        public Integer getUserId() {
-            return userId;
-        }
-
-        public void setUserId(Integer userId) {
-            this.userId = userId;
-        }
     }
 }

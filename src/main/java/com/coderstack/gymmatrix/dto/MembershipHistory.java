@@ -1,5 +1,7 @@
 package com.coderstack.gymmatrix.dto;
 
+import com.coderstack.gymmatrix.enums.PlanStatus;
+
 import java.time.LocalDateTime;
 
 public interface MembershipHistory {
@@ -11,4 +13,5 @@ public interface MembershipHistory {
     LocalDateTime getStartDate();
     LocalDateTime getEndDate();
     String getCollectedBy();
+    PlanStatus getStatus();
 }

@@ -1,12 +1,15 @@
 package com.coderstack.gymmatrix.controller;
 
+import com.coderstack.gymmatrix.enums.PlanStatus;
 import com.coderstack.gymmatrix.enums.UserType;
 import com.coderstack.gymmatrix.models.Gym;
 import com.coderstack.gymmatrix.models.Member;
 import com.coderstack.gymmatrix.repository.GymRepository;
 import com.coderstack.gymmatrix.repository.MemberRepository;
+import com.coderstack.gymmatrix.repository.MembershipRepository;
 import com.coderstack.gymmatrix.service.AdminStatsService;
 import com.coderstack.gymmatrix.service.DuplicateCheckService;
+import com.coderstack.gymmatrix.service.PasswordGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -35,6 +38,12 @@ public class MemberController {
     @Autowired
     private AdminStatsService adminStatsService;
 
+    @Autowired
+    private MembershipRepository membershipRepository;
+
+    @Autowired
+    private PasswordGenerator  passwordGenerator;
+
     @PostMapping("/member")
     public ResponseEntity<?> addNewUser(@PathVariable int gym_id, @RequestBody Member newMember) {
         Optional<Gym> gymOpt = getGymById(gym_id);
@@ -55,6 +64,7 @@ public class MemberController {
         }
 
         newMember.setGym(gym);
+        newMember.setPassword(passwordGenerator.generateRandomPassword(10));
         Member member=memberRepository.save(newMember);
         return sendSuccessResponse("New member saved successfully", member.getId());
     }
@@ -80,6 +90,7 @@ public class MemberController {
             return sendErrorResponse("Member not found", 404);
         }
         Member member=op_member.get();
+        res.put("total_active_memberships",membershipRepository.countActiveMemberShip(gym_id, member_id, PlanStatus.ACTIVE));
         res.put("memberInfo",member);
         res.put("planHistory", memberRepository.findPaymentDetailsByGymIdAndMemberId(gym_id, member_id));
         return ResponseEntity.ok(res);

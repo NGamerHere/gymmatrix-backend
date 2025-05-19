@@ -1,7 +1,10 @@
 package com.coderstack.gymmatrix.service;
 
+import org.springframework.stereotype.Service;
+
 import java.security.SecureRandom;
 
+@Service
 public class PasswordGenerator {
 
     private static final String UPPER = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";

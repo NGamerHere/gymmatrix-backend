@@ -1,5 +1,6 @@
 package com.coderstack.gymmatrix.models;
 
+import com.coderstack.gymmatrix.enums.PlanStatus;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
@@ -23,9 +24,20 @@ public class Membership {
     @JoinColumn(name = "user_id", nullable = false)
     private Member member;
 
+    @Enumerated(EnumType.STRING)
+    private PlanStatus status;
+
     private LocalDateTime startDate;
     private LocalDateTime endDate;
     private boolean active;
+
+    public PlanStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(PlanStatus status) {
+        this.status = status;
+    }
 
     public int getId() {
         return id;

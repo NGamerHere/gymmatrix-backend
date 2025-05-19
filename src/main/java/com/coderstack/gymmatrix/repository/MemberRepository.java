@@ -26,6 +26,7 @@ public interface MemberRepository extends JpaRepository<Member, Integer> {
             "p.collectedOn AS paymentDoneOn, " +
             "mp.plan_name AS planName, " +
             "m.active AS active, " +
+            "m.status AS status,"+
             "m.startDate AS startDate, " +
             "m.endDate AS endDate, " +
             "a.name AS collectedBy " +
@@ -33,7 +34,7 @@ public interface MemberRepository extends JpaRepository<Member, Integer> {
             "INNER JOIN p.membershipPlan mp " +
             "INNER JOIN p.membership m " +
             "INNER JOIN p.collectedByAdmin a " +
-            "WHERE p.gym.id = :gymId AND p.member.id = :memberId order by active desc")
+            "WHERE p.gym.id = :gymId AND p.member.id = :memberId order by m.status desc")
     List<MembershipHistory> findPaymentDetailsByGymIdAndMemberId(@Param("gymId") Integer gymId, @Param("memberId") Integer memberId);
 
 }
