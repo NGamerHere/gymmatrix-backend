@@ -1,5 +1,6 @@
 package com.coderstack.gymmatrix.repository;
 
+import com.coderstack.gymmatrix.dto.MembersInfo;
 import com.coderstack.gymmatrix.dto.MembershipHistory;
 import com.coderstack.gymmatrix.models.Gym;
 import com.coderstack.gymmatrix.models.Member;
@@ -16,6 +17,14 @@ public interface MemberRepository extends JpaRepository<Member, Integer> {
     Optional<Member> findByPhoneOrEmail(String phone, String email);
 
     List<Member> findByGym(Gym gym);
+
+    @Query(value = """
+                  select m.id,m.email,m.name,m.phone,ms.status,mp.plan_name as planName from members m
+                left join membership ms on m.id = ms.user_id
+                              left join membership_plans mp on ms.membership_plan_id = mp.id
+                              where m.gym_id=:gym_id and ms.status='ACTIVE'
+            """,nativeQuery = true)
+    List<MembersInfo> getMemberInfo(@Param("gym_id") int gymId);
 
     @Query("SELECT m FROM Member m WHERE m.gym.id = :gymId AND (m.phone = :phone OR m.email = :email)")
     List<Member> findDuplicates(@Param("gymId") int gymId, @Param("phone") String phone, @Param("email") String email);
@@ -34,7 +43,12 @@ public interface MemberRepository extends JpaRepository<Member, Integer> {
             "INNER JOIN p.membershipPlan mp " +
             "INNER JOIN p.membership m " +
             "INNER JOIN p.collectedByAdmin a " +
-            "WHERE p.gym.id = :gymId AND p.member.id = :memberId order by m.status asc")
+            "WHERE p.gym.id = :gymId AND p.member.id = :memberId " +
+            "ORDER BY  CASE status" +
+            "    WHEN 'active' THEN 0" +
+            "    WHEN 'expired' THEN 1" +
+            "    WHEN 'upcoming' THEN 2" +
+            "    ELSE 3 END")
     List<MembershipHistory> findPaymentDetailsByGymIdAndMemberId(@Param("gymId") Integer gymId, @Param("memberId") Integer memberId);
 
 }

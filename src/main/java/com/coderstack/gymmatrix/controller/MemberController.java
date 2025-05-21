@@ -71,11 +71,7 @@ public class MemberController {
 
     @GetMapping("/member")
     public ResponseEntity<?> getMember(@PathVariable int gym_id) {
-        Optional<Gym> gymOpt = getGymById(gym_id);
-        if (gymOpt.isEmpty()) {
-            return sendErrorResponse("Gym not found", 404);
-        }
-        return ResponseEntity.ok(adminStatsService.getMembers((long) gym_id));
+        return ResponseEntity.ok(memberRepository.getMemberInfo(gym_id));
     }
 
     @GetMapping("/member/{member_id}")
