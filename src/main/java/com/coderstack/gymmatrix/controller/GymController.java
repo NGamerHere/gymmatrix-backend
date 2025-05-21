@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
 @CrossOrigin
-@RequestMapping("/api/gym")
+@RequestMapping("/api")
 public class GymController {
 
     @Autowired
@@ -25,7 +25,7 @@ public class GymController {
     @Autowired
     private GymRepository gymRepository;
 
-    @PostMapping("/add")
+    @PostMapping("/new-gym-add")
     public ResponseEntity<?> add(@RequestBody NewGym newGym) {
         Gym gym = new Gym();
         gym.setName(newGym.gym_name);
