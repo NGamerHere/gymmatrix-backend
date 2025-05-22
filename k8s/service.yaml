@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: gymmatrix-service
+spec:
+  type: LoadBalancer # Use NodePort for local setups
+  selector:
+    app: gymmatrix
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080

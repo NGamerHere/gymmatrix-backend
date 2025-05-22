@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gymmatrix-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: gymmatrix
+  template:
+    metadata:
+      labels:
+        app: gymmatrix
+    spec:
+      containers:
+        - name: gymmatrix
+          image: ncoderhere/gymmatrix-backend-build:latest
+          ports:
+            - containerPort: 8080
