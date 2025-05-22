@@ -1,5 +1,6 @@
 package com.coderstack.gymmatrix.service;
 
+import com.coderstack.gymmatrix.enums.UserType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -32,7 +33,7 @@ public class MailService {
     private String sampleEmail;
 
     @Async
-    public void sendWelcomeEmail(String toEmail, String name, String password, String dashboardUrl) {
+    public void sendWelcomeEmail(UserType userType, String toEmail, String name, String password, String dashboardUrl, String gymName) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
@@ -53,12 +54,16 @@ public class MailService {
             context.setVariable("name", name);
             context.setVariable("email", toEmail);
             context.setVariable("password", password);
+            context.setVariable("gymName", gymName);
             context.setVariable("dashboardUrl", dashboardUrl);
 
-
-            String htmlContent = templateEngine.process("email/trainer-welcome.html", context);
-            helper.setText(htmlContent, true);
-
+            if(userType.equals(UserType.member)){
+                String htmlContent = templateEngine.process("email/member-onboarding.html", context);
+                helper.setText(htmlContent, true);
+            }else {
+                String htmlContent = templateEngine.process("email/trainer-welcome.html", context);
+                helper.setText(htmlContent, true);
+            }
             mailSender.send(message);
             System.out.println("✅ Email sent successfully to " + toEmail);
 

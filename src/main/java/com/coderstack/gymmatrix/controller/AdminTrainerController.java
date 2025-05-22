@@ -40,6 +40,7 @@ public class AdminTrainerController {
 
     @Autowired
     private MailService mailService;
+
     @Autowired
     private DuplicateCheckService duplicateCheckService;
 
@@ -64,7 +65,7 @@ public class AdminTrainerController {
         trainer.setGym(gym);
         String password = PasswordGenerator.generateRandomPassword(10);
         trainer.setPassword(password);
-        mailService.sendWelcomeEmail(trainer.getEmail(), trainer.getName(), password, "");
+        mailService.sendWelcomeEmail(UserType.trainer,trainer.getEmail(), trainer.getName(), password, "",trainer.getGym().getName());
         Trainer newTrainer = trainerRepository.save(trainer);
         res.put("status", "success");
         res.put("id", newTrainer.getId());

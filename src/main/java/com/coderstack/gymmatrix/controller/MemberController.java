@@ -9,6 +9,7 @@ import com.coderstack.gymmatrix.repository.MemberRepository;
 import com.coderstack.gymmatrix.repository.MembershipRepository;
 import com.coderstack.gymmatrix.service.AdminStatsService;
 import com.coderstack.gymmatrix.service.DuplicateCheckService;
+import com.coderstack.gymmatrix.service.MailService;
 import com.coderstack.gymmatrix.service.PasswordGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -36,13 +37,10 @@ public class MemberController {
     private DuplicateCheckService duplicateCheckService;
 
     @Autowired
-    private AdminStatsService adminStatsService;
-
-    @Autowired
     private MembershipRepository membershipRepository;
 
     @Autowired
-    private PasswordGenerator  passwordGenerator;
+    private MailService mailService;
 
     @PostMapping("/member")
     public ResponseEntity<?> addNewUser(@PathVariable int gym_id, @RequestBody Member newMember) {
@@ -64,8 +62,10 @@ public class MemberController {
         }
 
         newMember.setGym(gym);
-        newMember.setPassword(passwordGenerator.generateRandomPassword(10));
+        String password=PasswordGenerator.generateRandomPassword(10);
+        newMember.setPassword(password);
         Member member=memberRepository.save(newMember);
+        mailService.sendWelcomeEmail(UserType.member,member.getEmail(), member.getName(), password, "",member.getGym().getName());
         return sendSuccessResponse("New member saved successfully", member.getId());
     }
 

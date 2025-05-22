@@ -1,11 +1,10 @@
-<!-- src/main/resources/templates/email/welcome.html -->
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Welcome</title>
 </head>
-<body style="font-family: Arial; background-color: #f4f4f4; padding: 20px;">
+<body style="font-family: Arial,sans-serif; background-color: #f4f4f4; padding: 20px;">
 <table style="max-width:600px; margin:auto; background-color:#fff; border-radius:10px;">
     <tr>
         <td style="background-color:#2d2d2d; color:white; text-align:center; padding:20px; border-radius:10px 10px 0 0;">
@@ -14,8 +13,8 @@
     </tr>
     <tr>
         <td style="padding:30px; color:#333;">
-            <p>Hello <strong th:text="${name}">Trainer</strong>,</p>
-            <p>We’re excited to have you on board with <span th:text="${gymName}" ></span>. Start managing your sessions and members easily.</p>
+            <p>Hello <strong th:text="${name}">Member</strong>,</p>
+            <p>We’re excited to have you on board with <span th:text="${gymName}" ></span>. Stay fit and starts exercise.</p>
             <p>Login with your email and password:</p>
             <p><strong>Email:</strong> <span th:text="${email}">trainer@example.com</span></p>
             <p><strong>Password:</strong> <span th:text="${password}">yourPassword123</span></p>
@@ -26,7 +25,7 @@
                     Go to Dashboard
                 </a>
             </p>
-            <p>Best regards,<br><span th:text="${gymName}" ></span> Team</p>
+            <p>Best regards,<br> <span th:text="${gymName}" > GYM Matrix </span> Team</p>
         </td>
     </tr>
     <tr>

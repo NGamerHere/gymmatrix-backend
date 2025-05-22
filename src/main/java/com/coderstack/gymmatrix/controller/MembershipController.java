@@ -51,8 +51,8 @@ public class MembershipController {
 
         LocalDateTime now = LocalDateTime.now().withNano(0);
         LocalDateTime startDate = membershipRequest.getStartDate() != null
-                ? membershipRequest.getStartDate().withNano(0)
-                : now;
+                ? membershipRequest.getStartDate().withHour(0).withMinute(0).withSecond(0).withNano(0)
+                : now.withHour(0).withMinute(0).withSecond(0).withNano(0);
 
         int countInfo=membershipRepository.findActiveOrUpcomingMembership(membershipRequest.getUserId(),gym_id,startDate);
         if (countInfo > 0){
