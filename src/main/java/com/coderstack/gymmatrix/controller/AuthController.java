@@ -4,8 +4,10 @@ import com.coderstack.gymmatrix.dto.SignIn;
 import com.coderstack.gymmatrix.enums.UserType;
 import com.coderstack.gymmatrix.models.Admin;
 import com.coderstack.gymmatrix.models.Gym;
+import com.coderstack.gymmatrix.models.Member;
 import com.coderstack.gymmatrix.models.Trainer;
 import com.coderstack.gymmatrix.repository.AdminRepository;
+import com.coderstack.gymmatrix.repository.MemberRepository;
 import com.coderstack.gymmatrix.repository.TrainerRepository;
 import com.coderstack.gymmatrix.utils.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
@@ -29,8 +31,12 @@ public class AuthController {
 
     @Autowired
     private JwtUtil jwtUtil;
+
     @Autowired
     private TrainerRepository trainerRepository;
+
+    @Autowired
+    private MemberRepository memberRepository;
 
     @PostMapping("signin")
     public ResponseEntity<?> adminSignIn(HttpServletRequest request, @RequestBody SignIn signData) {
@@ -73,7 +79,26 @@ public class AuthController {
             res.put("user_id",trainer.getId());
             res.put("gym_id",gym.getId());
             return ResponseEntity.ok(res);
-        } else {
+        } else if (signData.role == UserType.member){
+            Member member = memberRepository.findByEmail(signData.email);
+            if(member == null || member.comparePassword(signData.password) ) {
+                res.put("error", "Invalid email or password");
+                return ResponseEntity.status(401).body(res);
+            }
+            Gym gym = member.getGym();
+            Map<String, Object> claims = Map.of("role",
+                    UserType.member
+                    , "user_id", member.getId()
+                    , "gym_id", gym.getId()
+                    , "Ip",ipAddress
+            );
+            String token = jwtUtil.generateToken(member.getEmail(), claims);
+            res.put("token", token);
+            res.put("role",UserType.trainer);
+            res.put("user_id",member.getId());
+            res.put("gym_id",gym.getId());
+            return ResponseEntity.ok(res);
+        }else {
             res.put("message", "currently only admin can login");
             return ResponseEntity.status(404).body(res);
         }

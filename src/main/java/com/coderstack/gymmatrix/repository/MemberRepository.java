@@ -18,6 +18,8 @@ public interface MemberRepository extends JpaRepository<Member, Integer> {
 
     List<Member> findByGym(Gym gym);
 
+    Member findByEmail(String email);
+
     @Query(value = """
                   select m.id,m.email,m.name,m.phone,ms.status,mp.plan_name as planName from members m
                 left join membership ms on m.id = ms.user_id
