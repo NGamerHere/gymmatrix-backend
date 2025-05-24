@@ -1,6 +1,6 @@
 package com.coderstack.gymmatrix.dto;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 public class MembershipResponseDTO {
     private int id;
@@ -8,15 +8,15 @@ public class MembershipResponseDTO {
     private String userEmail;
     private String planName;
     private int planPrice;
-    private LocalDateTime startDate;
-    private LocalDateTime endDate;
+    private LocalDate startDate;
+    private LocalDate endDate;
     private Boolean active;
     private int planId;
     private int planDuration;
 
     public MembershipResponseDTO(int id, String userName, String userEmail,
                                  String planName, int planPrice,
-                                 LocalDateTime startDate, LocalDateTime endDate,
+                                 LocalDate startDate, LocalDate endDate,
                                  Boolean active, int planId, int planDuration) {
         this.id = id;
         this.userName = userName;
@@ -70,19 +70,19 @@ public class MembershipResponseDTO {
         this.planPrice = planPrice;
     }
 
-    public LocalDateTime getStartDate() {
+    public LocalDate getStartDate() {
         return startDate;
     }
 
-    public void setStartDate(LocalDateTime startDate) {
+    public void setStartDate(LocalDate startDate) {
         this.startDate = startDate;
     }
 
-    public LocalDateTime getEndDate() {
+    public LocalDate getEndDate() {
         return endDate;
     }
 
-    public void setEndDate(LocalDateTime endDate) {
+    public void setEndDate(LocalDate endDate) {
         this.endDate = endDate;
     }
 

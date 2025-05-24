@@ -1,19 +1,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: gymmatrix-deployment
+  name: gymmatrix-ecr-backend-deployment
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: gymmatrix
+      app: gymmatrix-ecr-backend
   template:
     metadata:
       labels:
-        app: gymmatrix
+        app: gymmatrix-ecr-backend
     spec:
+      imagePullSecrets:
+        - name: ecr-creds
       containers:
-        - name: gymmatrix
-          image: ncoderhere/gymmatrix-backend-build:latest
+        - name: gymmatrix-ecr-backend
+          image: 194722423543.dkr.ecr.ap-south-1.amazonaws.com/coderstack/gymmatrix-backend
           ports:
             - containerPort: 8080

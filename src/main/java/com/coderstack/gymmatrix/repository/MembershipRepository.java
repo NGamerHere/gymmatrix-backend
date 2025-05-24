@@ -19,6 +19,8 @@ public interface MembershipRepository extends JpaRepository<Membership, Integer>
 
     Membership getByMemberAndGymAndActiveTrue(Member member, Gym gym);
 
+    List<Membership> findByStatus(PlanStatus status);
+
     @Query("""
     SELECT count(*) FROM Membership m
     WHERE m.member.id = :userId
@@ -37,7 +39,7 @@ public interface MembershipRepository extends JpaRepository<Membership, Integer>
     int findActiveOrUpcomingMembership(
             @Param("userId") int userId,
             @Param("gymId") int gymId,
-            @Param("checkDate") LocalDateTime checkDate
+            @Param("checkDate") LocalDate checkDate
     );
 
 

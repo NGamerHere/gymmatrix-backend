@@ -2,7 +2,7 @@ package com.coderstack.gymmatrix.models;
 
 import com.coderstack.gymmatrix.enums.PlanStatus;
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "membership")
@@ -27,8 +27,8 @@ public class Membership {
     @Enumerated(EnumType.STRING)
     private PlanStatus status;
 
-    private LocalDateTime startDate;
-    private LocalDateTime endDate;
+    private LocalDate startDate;
+    private LocalDate endDate;
     private boolean active;
 
     public PlanStatus getStatus() {
@@ -71,19 +71,19 @@ public class Membership {
         this.member = member;
     }
 
-    public LocalDateTime getStartDate() {
+    public LocalDate getStartDate() {
         return startDate;
     }
 
-    public void setStartDate(LocalDateTime startDate) {
+    public void setStartDate(LocalDate startDate) {
         this.startDate = startDate;
     }
 
-    public LocalDateTime getEndDate() {
+    public LocalDate getEndDate() {
         return endDate;
     }
 
-    public void setEndDate(LocalDateTime endDate) {
+    public void setEndDate(LocalDate endDate) {
         this.endDate = endDate;
     }
 
