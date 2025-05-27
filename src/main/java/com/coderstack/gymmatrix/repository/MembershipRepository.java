@@ -10,7 +10,6 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -22,20 +21,20 @@ public interface MembershipRepository extends JpaRepository<Membership, Integer>
     List<Membership> findByStatus(PlanStatus status);
 
     @Query("""
-    SELECT count(*) FROM Membership m
-    WHERE m.member.id = :userId
-      AND m.gym.id = :gymId
-      AND (
-        (
-          m.status = 'ACTIVE' AND 
-          :checkDate BETWEEN FUNCTION('DATE', m.startDate) AND FUNCTION('DATE', m.endDate)
-        ) or 
-        (
-          m.status = 'upcoming' AND
-          :checkDate BETWEEN FUNCTION('DATE', m.startDate) AND FUNCTION('DATE', m.endDate)
-        )
-      )
-""")
+                SELECT count(*) FROM Membership m
+                WHERE m.member.id = :userId
+                  AND m.gym.id = :gymId
+                  AND (
+                    (
+                      m.status = 'ACTIVE' AND 
+                      :checkDate BETWEEN FUNCTION('DATE', m.startDate) AND FUNCTION('DATE', m.endDate)
+                    ) or 
+                    (
+                      m.status = 'upcoming' AND
+                      :checkDate BETWEEN FUNCTION('DATE', m.startDate) AND FUNCTION('DATE', m.endDate)
+                    )
+                  )
+            """)
     int findActiveOrUpcomingMembership(
             @Param("userId") int userId,
             @Param("gymId") int gymId,
@@ -43,12 +42,10 @@ public interface MembershipRepository extends JpaRepository<Membership, Integer>
     );
 
 
-    @Query(value="""
-           select count(*) from membership where gym_id=:gym_id and user_id=:user_id and status=:status
-      """,nativeQuery = true)
-    public Integer countActiveMemberShip(@Param("gym_id") int gymId,@Param("user_id") int userId,@Param("status") PlanStatus planStatus);
-
-
+    @Query(value = """
+                 select count(*) from membership where gym_id=:gym_id and user_id=:user_id and status=:status
+            """, nativeQuery = true)
+    public Integer countActiveMemberShip(@Param("gym_id") int gymId, @Param("user_id") int userId, @Param("status") PlanStatus planStatus);
 
 
 }

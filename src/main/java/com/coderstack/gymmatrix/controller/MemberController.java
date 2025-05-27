@@ -71,7 +71,7 @@ public class MemberController {
 
     @GetMapping("/member")
     public ResponseEntity<?> getMember(@PathVariable int gym_id) {
-        return ResponseEntity.ok(memberRepository.getMemberInfo(gym_id));
+        return ResponseEntity.ok(memberRepository.getMembersProjection(gym_id));
     }
 
     @GetMapping("/member/{member_id}")
