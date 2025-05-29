@@ -7,8 +7,10 @@ import jakarta.persistence.*;
 public class Gym {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "gym_seq")
+    @SequenceGenerator(name = "gym_seq", sequenceName = "gym_seq", allocationSize = 1)
     private int id;
+
     private String name;
     private String description;
     private String phone;
@@ -19,6 +21,8 @@ public class Gym {
     private String country;
     private String zip;
 
+    // Getters and Setters...
+
     public int getId() {
         return id;
     }
@@ -26,7 +30,6 @@ public class Gym {
     public void setId(int id) {
         this.id = id;
     }
-
 
     public String getName() {
         return name;
@@ -36,7 +39,6 @@ public class Gym {
         this.name = name;
     }
 
-
     public String getDescription() {
         return description;
     }
@@ -44,7 +46,6 @@ public class Gym {
     public void setDescription(String description) {
         this.description = description;
     }
-
 
     public String getPhone() {
         return phone;
@@ -54,7 +55,6 @@ public class Gym {
         this.phone = phone;
     }
 
-
     public String getEmail() {
         return email;
     }
@@ -62,7 +62,6 @@ public class Gym {
     public void setEmail(String email) {
         this.email = email;
     }
-
 
     public String getAddress() {
         return address;
@@ -72,7 +71,6 @@ public class Gym {
         this.address = address;
     }
 
-
     public String getCity() {
         return city;
     }
@@ -81,7 +79,6 @@ public class Gym {
         this.city = city;
     }
 
-
     public String getState() {
         return state;
     }
@@ -89,7 +86,6 @@ public class Gym {
     public void setState(String state) {
         this.state = state;
     }
-
 
     public String getCountry() {
         return country;
@@ -102,6 +98,7 @@ public class Gym {
     public String getZip() {
         return zip;
     }
+
     public void setZip(String zip) {
         this.zip = zip;
     }

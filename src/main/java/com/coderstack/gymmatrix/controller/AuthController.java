@@ -14,10 +14,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -102,5 +99,10 @@ public class AuthController {
             res.put("message", "currently only admin can login");
             return ResponseEntity.status(404).body(res);
         }
+    }
+
+    @PostMapping("forget-password")
+    public ResponseEntity<?> forgetPassword(String email){
+        return ResponseEntity.ok(email);
     }
 }

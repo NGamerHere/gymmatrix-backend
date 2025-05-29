@@ -6,9 +6,12 @@ import jakarta.persistence.*;
 @Entity
 @Table(name = "admins")
 public class Admin {
+
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "admin_seq")
+    @SequenceGenerator(name = "admin_seq", sequenceName = "admin_seq", allocationSize = 1)
     private int id;
+
     private String name;
     private String password;
     private String email;
@@ -20,18 +23,22 @@ public class Admin {
     private String state;
     private String country;
     private String zip;
+
     @Enumerated(EnumType.STRING)
     private UserType user_type;
+
     @ManyToOne
-    @JoinColumn(name = "gym_id",nullable = false)
+    @JoinColumn(name = "gym_id", nullable = false)
     private Gym gym;
 
-    public void setGym(Gym gym) {
-        this.gym = gym;
-    }
+    // Getters and setters...
 
     public Gym getGym() {
         return gym;
+    }
+
+    public void setGym(Gym gym) {
+        this.gym = gym;
     }
 
     public int getId() {
