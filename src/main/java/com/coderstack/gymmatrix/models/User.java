@@ -4,12 +4,10 @@ import com.coderstack.gymmatrix.enums.UserType;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "admins")
-public class Admin {
-
+@Table(name = "users")
+public class User {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "admin_seq")
-    @SequenceGenerator(name = "admin_seq", sequenceName = "admin_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
     private String name;
