@@ -1,6 +1,5 @@
 package com.coderstack.gymmatrix.repository;
 
-
 import com.coderstack.gymmatrix.dto.TrainerDTO;
 import com.coderstack.gymmatrix.models.Trainer;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -12,9 +11,14 @@ import java.util.List;
 
 @Repository
 public interface TrainerRepository extends JpaRepository<Trainer, Integer> {
-    public Trainer findByEmail(String email);
 
-    @Query("SELECT t FROM Trainer t WHERE t.gym.id = :gymId")
+    Trainer findByEmail(String email);
+
+    @Query(value = """
+    SELECT t.id, t.name, t.email, t.phone, t.gender
+    FROM trainer t
+    WHERE t.gym_id = :gymId
+    """, nativeQuery = true)
     List<TrainerDTO> findByGym(@Param("gymId") int gymId);
 
     @Query("SELECT t FROM Trainer t WHERE t.gym.id = :gymId AND (t.phone = :phone OR t.email = :email)")

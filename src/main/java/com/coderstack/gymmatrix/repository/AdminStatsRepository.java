@@ -13,7 +13,7 @@ public interface AdminStatsRepository extends JpaRepository<Member, Integer> {
     @Query(value = "SELECT COUNT(*) FROM members WHERE gym_id = :gymId", nativeQuery = true)
     int getTotalMemberCount(@Param("gymId") Long gymId);
 
-    @Query(value = "SELECT COUNT(*) FROM membership WHERE gym_id = :gymId AND active = 1", nativeQuery = true)
+    @Query(value = "SELECT COUNT(*) FROM membership WHERE gym_id = :gymId AND active = true", nativeQuery = true)
     int getTotalActiveMembers(@Param("gymId") Long gymId);
 
     @Query(value = "SELECT SUM(amount) FROM payments WHERE gym_id = :gymId", nativeQuery = true)
@@ -26,17 +26,15 @@ public interface AdminStatsRepository extends JpaRepository<Member, Integer> {
                 m.name AS name,
                 p.plan_name AS planName,
                 p.plan_duration AS planDuration,
-                status
+                membership.status AS status
             FROM
                 membership
-                    INNER JOIN membership_plans p ON p.id = membership.membership_plan_id
-                    INNER JOIN members m ON membership.user_id = m.id
+            INNER JOIN membership_plans p ON p.id = membership.membership_plan_id
+            INNER JOIN members m ON membership.user_id = m.id
             WHERE
                 membership.gym_id = :gym_id
-              AND (membership.status = 'ACTIVE' or membership.status = 'upcoming') order by status asc
+              AND (membership.status = 'ACTIVE' OR membership.status = 'upcoming')
+            ORDER BY membership.status ASC
             """, nativeQuery = true)
     List<MemberProjection> getMember(@Param("gym_id") Long gym_id);
 }
-
-
-

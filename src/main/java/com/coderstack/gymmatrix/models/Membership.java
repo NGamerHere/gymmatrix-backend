@@ -25,6 +25,7 @@ public class Membership {
     private Member member;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "status")
     private PlanStatus status;
 
     private LocalDate startDate;

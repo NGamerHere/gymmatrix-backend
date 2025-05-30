@@ -14,27 +14,28 @@ import java.util.List;
 
 @Repository
 public interface MembershipRepository extends JpaRepository<Membership, Integer> {
-    public List<Membership> findByGym(Gym gym);
+
+    List<Membership> findByGym(Gym gym);
 
     Membership getByMemberAndGymAndActiveTrue(Member member, Gym gym);
 
     List<Membership> findByStatus(PlanStatus status);
 
     @Query("""
-                SELECT count(*) FROM Membership m
-                WHERE m.member.id = :userId
-                  AND m.gym.id = :gymId
-                  AND (
-                    (
-                      m.status = 'ACTIVE' AND 
-                      :checkDate BETWEEN FUNCTION('DATE', m.startDate) AND FUNCTION('DATE', m.endDate)
-                    ) or 
-                    (
-                      m.status = 'upcoming' AND
-                      :checkDate BETWEEN FUNCTION('DATE', m.startDate) AND FUNCTION('DATE', m.endDate)
-                    )
-                  )
-            """)
+        SELECT COUNT(m) FROM Membership m
+        WHERE m.member.id = :userId
+          AND m.gym.id = :gymId
+          AND (
+            (
+              m.status = 'ACTIVE' AND 
+              :checkDate BETWEEN m.startDate AND m.endDate
+            ) OR 
+            (
+              m.status = 'UPCOMING' AND
+              :checkDate BETWEEN m.startDate AND m.endDate
+            )
+          )
+        """)
     int findActiveOrUpcomingMembership(
             @Param("userId") int userId,
             @Param("gymId") int gymId,
@@ -42,10 +43,6 @@ public interface MembershipRepository extends JpaRepository<Membership, Integer>
     );
 
 
-    @Query(value = """
-                 select count(*) from membership where gym_id=:gym_id and user_id=:user_id and status=:status
-            """, nativeQuery = true)
-    public Integer countActiveMemberShip(@Param("gym_id") int gymId, @Param("user_id") int userId, @Param("status") PlanStatus planStatus);
-
-
+    @Query("SELECT COUNT(m) FROM Membership m WHERE m.gym.id = ?1 AND m.member.id = ?2 AND m.status = ?3")
+    Long countActiveMemberShip(Integer gymId,Integer userId, PlanStatus status);
 }
