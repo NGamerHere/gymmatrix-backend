@@ -1,7 +1,11 @@
 package com.coderstack.gymmatrix.models;
 
 import com.coderstack.gymmatrix.enums.UserType;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -30,12 +34,14 @@ public class User {
     @JoinColumn(name = "gym_id", nullable = false)
     private Gym gym;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "trainer_id")
+    @JsonManagedReference("membership-user")
     private User trainer;
 
-    @OneToMany(mappedBy = "trainer")
-    private List<User> members;
+    @OneToMany(mappedBy = "trainer", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonBackReference("membership-user")
+    private List<User> members = new ArrayList<>();
 
 
     public User getTrainer() {

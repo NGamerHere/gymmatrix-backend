@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface UserRepository extends JpaRepository<User , Integer> {
@@ -21,6 +22,10 @@ public interface UserRepository extends JpaRepository<User , Integer> {
     List<User> findDuplicates(@Param("id") int id, @Param("email") String email, @Param("phone") String phone);
 
     List<User> findByGym(Gym gym);
+
+    Optional<User> findByIdAndUserType(Integer integer,UserType userType);
+
+    List<User> findByGymAndUserType(Gym gym, UserType userType);
 
 
     @Query(value = """

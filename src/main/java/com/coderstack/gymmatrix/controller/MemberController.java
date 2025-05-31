@@ -56,7 +56,7 @@ public class MemberController {
 
         Gym gym = gymOpt.get();
         Map<String, String> duplicate = duplicateCheckService.checkDuplicate(
-                gym.getId(), newMember.getPhone(), newMember.getEmail(), UserType.member);
+                gym.getId(), newMember.getPhone(), newMember.getEmail());
 
         if (!duplicate.isEmpty()) {
             if (duplicate.get("phone") != null) {

@@ -17,7 +17,7 @@ public class DuplicateCheckService {
     @Autowired
     private UserRepository userRepository;
 
-    public Map<String, String> checkDuplicate(int gymId, String phone, String email, UserType userType) {
+    public Map<String, String> checkDuplicate(int gymId, String phone, String email) {
         Map<String, String> errors = new HashMap<>();
 
         List<User> users=userRepository.findDuplicates(gymId, phone, email);
