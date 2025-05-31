@@ -2,6 +2,7 @@ package com.coderstack.gymmatrix.models;
 
 import com.coderstack.gymmatrix.enums.UserType;
 import jakarta.persistence.*;
+import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -23,11 +24,36 @@ public class User {
     private String zip;
 
     @Enumerated(EnumType.STRING)
-    private UserType user_type;
+    private UserType userType;
 
     @ManyToOne
     @JoinColumn(name = "gym_id", nullable = false)
     private Gym gym;
+
+    @ManyToOne
+    @JoinColumn(name = "trainer_id")
+    private User trainer;
+
+    @OneToMany(mappedBy = "trainer")
+    private List<User> members;
+
+
+    public User getTrainer() {
+        return trainer;
+    }
+
+    public void setTrainer(User trainer) {
+        this.trainer = trainer;
+    }
+
+    public List<User> getMembers() {
+        return members;
+    }
+
+    public void setMembers(List<User> members) {
+        this.members = members;
+    }
+
 
     public Gym getGym() {
         return gym;
@@ -134,10 +160,10 @@ public class User {
     }
 
     public UserType getUserType() {
-        return user_type;
+        return userType;
     }
 
-    public void setUserType(UserType user_type) {
-        this.user_type = user_type;
+    public void setUserType(UserType userType) {
+        this.userType = userType;
     }
 }

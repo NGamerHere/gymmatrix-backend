@@ -31,27 +31,27 @@ public class Trainer {
     @JoinColumn(name = "gym_id",nullable = false)
     private Gym gym;
 
-    @OneToMany(mappedBy = "trainer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonManagedReference
-    private List<Member> members;
-
-    public List<Member> getMembers() {
-        return members;
-    }
-    public void setMembers(List<Member> members) {
-        this.members = members;
-    }
-
-    public void addMember(Member member) {
-        this.members.add(member);
-        member.setTrainer(this);
-    }
-
-
-    public void removeMember(Member member) {
-        this.members.remove(member);
-        member.setTrainer(null);
-    }
+//    @OneToMany(mappedBy = "trainer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+//    @JsonManagedReference
+//    private List<User> members;
+//
+//    public List<User> getMembers() {
+//        return members;
+//    }
+//    public void setMembers(List<User> members) {
+//        this.members = members;
+//    }
+//
+//    public void addMember(User member) {
+//        this.members.add(member);
+//        member.setTrainer(this);
+//    }
+//
+//
+//    public void removeMember(User member) {
+//        this.members.remove(member);
+//        member.setTrainer(null);
+//    }
 
     public UserType getUserType() {
         return userType;

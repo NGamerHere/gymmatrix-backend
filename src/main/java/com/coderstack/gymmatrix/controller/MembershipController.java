@@ -6,6 +6,8 @@ import com.coderstack.gymmatrix.enums.PlanStatus;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+
+import com.coderstack.gymmatrix.enums.UserType;
 import com.coderstack.gymmatrix.models.*;
 import com.coderstack.gymmatrix.repository.*;
 import io.jsonwebtoken.Claims;
@@ -42,17 +44,23 @@ public class MembershipController {
     @Autowired
     private PaymentRepository paymentRepository;
 
+    @Autowired
+    private UserRepository userRepository;
+
 
     @PostMapping("/memberships")
-    public ResponseEntity<?> createMembership(
-            @PathVariable int admin_id, @RequestBody MembershipRequest membershipRequest, @PathVariable int gym_id) {
-
+    public ResponseEntity<?> createMembership(@PathVariable int admin_id, @RequestBody MembershipRequest membershipRequest, @PathVariable int gym_id) {
         Gym gym = gymRepository.findById(gym_id)
                 .orElseThrow(() -> new RuntimeException("Gym not found"));
         MembershipPlan plan = membershipPlanRepository.findById(membershipRequest.getPlanId())
                 .orElseThrow(() -> new RuntimeException("Membership plan not found"));
-        Member member = memberRepository.findById(membershipRequest.getUserId())
+        User user = userRepository.findById(membershipRequest.getUserId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (user.getUserType() != UserType.member) {
+            return ResponseEntity.status(400).body(Map.of(
+                    "error", "Invalid user , you cant add the data to this user"));
+        }
 
 
         LocalDate today = LocalDate.now();
@@ -61,7 +69,7 @@ public class MembershipController {
                 : today;
 
 
-        int countInfo = membershipRepository.findActiveOrUpcomingMembership(
+        int countInfo = userRepository.findActiveOrUpcomingMembership(
                 membershipRequest.getUserId(), gym_id, startDate);
         if (countInfo > 0) {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM d, yyyy");
@@ -78,7 +86,7 @@ public class MembershipController {
         Membership membership = new Membership();
         membership.setGym(gym);
         membership.setMembershipPlan(plan);
-        membership.setUser(member);
+        membership.setUser(user);
         membership.setStartDate(startDate);
         membership.setEndDate(startDate.plusMonths(plan.getPlanDuration()));
         membership.setStatus(startDate.equals(today) ? PlanStatus.ACTIVE : PlanStatus.UPCOMING);
@@ -86,7 +94,7 @@ public class MembershipController {
 
         Membership savedMembership = membershipRepository.save(membership);
 
-        Admin collectedByAdmin = adminRepository.findById(admin_id)
+        User collectedByAdmin = userRepository.findById(admin_id)
                 .orElseThrow(() -> new RuntimeException("Admin not found"));
 
         Payment payment = new Payment();
@@ -97,7 +105,7 @@ public class MembershipController {
         payment.setPaymentType(membershipRequest.getPaymentType());
         payment.setCollectedByAdmin(collectedByAdmin);
         payment.setCollectedOn(LocalDateTime.now());
-        payment.setMember(member);
+        payment.setMember(user);
         payment.setMembership(savedMembership);
         paymentRepository.save(payment);
 
@@ -108,12 +116,10 @@ public class MembershipController {
     }
 
 
-
-
     @GetMapping("/memberships")
     public ResponseEntity<?> getAllMemberships(@PathVariable int gym_id) {
         Gym gym = gymRepository.findById(gym_id).orElseThrow(() -> new RuntimeException("Gym not found"));
-        List<Membership> memberships=membershipRepository.findByGym(gym);
+        List<Membership> memberships = membershipRepository.findByGym(gym);
         List<MembershipResponseDTO> response = memberships.stream().map(m -> new MembershipResponseDTO(
                 m.getId(),
                 m.getUser().getName(),

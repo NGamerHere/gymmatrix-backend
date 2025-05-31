@@ -41,14 +41,14 @@ public class AuthController {
         Map<String, Object> res = new HashMap<>();
         String ipAddress = request.getRemoteAddr();
 
-        User user = userRepository.findUserByEmailAndUser_type(signData.email,signData.role);
-        if(user == null || user.comparePassword(signData.password) ) {
+        User user = userRepository.findUserByEmailAndUserType(signData.email,signData.role);
+        if(user == null || !user.comparePassword(signData.password) ) {
             res.put("error", "Invalid email or password");
             return ResponseEntity.status(401).body(res);
         }
         Gym gym = user.getGym();
-        Map<String, Object> claims = Map.of("role",
-                UserType.member
+        Map<String, Object> claims = Map.of(
+                "role", signData.role
                 , "user_id", user.getId()
                 , "gym_id", gym.getId()
                 , "Ip",ipAddress

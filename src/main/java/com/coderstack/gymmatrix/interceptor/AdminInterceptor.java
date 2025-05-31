@@ -30,12 +30,8 @@ public class AdminInterceptor implements HandlerInterceptor {
             }
             String[] parts = request.getRequestURI().split("/");
             UserType userType = UserType.valueOf(parts[4]);
-            System.out.println(userType);
-            if (userType == null) {
-                response.sendError(HttpServletResponse.SC_NOT_FOUND, "Invalid role");
-                return false;
-            }
             Claims claims = jwtService.extractClaimsFromRequest(request);
+            System.out.println(jwtService.hasRole(claims, userType));
             if (claims == null || !jwtService.hasRole(claims, userType)) {
                 response.sendError(HttpServletResponse.SC_FORBIDDEN, "Invalid or expired token");
                 return false;

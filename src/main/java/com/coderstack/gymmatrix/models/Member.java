@@ -27,6 +27,8 @@ public class Member {
     @JsonIgnore
     private Gym gym;
 
+
+
     @ManyToOne
     @JsonBackReference
     @JoinColumn(name = "trainer_id")

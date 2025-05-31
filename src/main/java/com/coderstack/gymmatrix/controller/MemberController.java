@@ -4,9 +4,11 @@ import com.coderstack.gymmatrix.enums.PlanStatus;
 import com.coderstack.gymmatrix.enums.UserType;
 import com.coderstack.gymmatrix.models.Gym;
 import com.coderstack.gymmatrix.models.Member;
+import com.coderstack.gymmatrix.models.User;
 import com.coderstack.gymmatrix.repository.GymRepository;
 import com.coderstack.gymmatrix.repository.MemberRepository;
 import com.coderstack.gymmatrix.repository.MembershipRepository;
+import com.coderstack.gymmatrix.repository.UserRepository;
 import com.coderstack.gymmatrix.service.AdminStatsService;
 import com.coderstack.gymmatrix.service.DuplicateCheckService;
 import com.coderstack.gymmatrix.service.MailService;
@@ -42,8 +44,11 @@ public class MemberController {
     @Autowired
     private MailService mailService;
 
+    @Autowired
+    private UserRepository userRepository;
+
     @PostMapping("/member")
-    public ResponseEntity<?> addNewUser(@PathVariable int gym_id, @RequestBody Member newMember) {
+    public ResponseEntity<?> addNewUser(@PathVariable int gym_id, @RequestBody User newMember) {
         Optional<Gym> gymOpt = getGymById(gym_id);
         if (gymOpt.isEmpty()) {
             return sendErrorResponse("Gym not found", 404);
@@ -64,14 +69,15 @@ public class MemberController {
         newMember.setGym(gym);
         String password=PasswordGenerator.generateRandomPassword(10);
         newMember.setPassword(password);
-        Member member=memberRepository.save(newMember);
+        newMember.setUserType(UserType.member);
+        User member=userRepository.save(newMember);
         mailService.sendWelcomeEmail(UserType.member,member.getEmail(), member.getName(), password, "",member.getGym().getName());
         return sendSuccessResponse("New member saved successfully", member.getId());
     }
 
     @GetMapping("/member")
     public ResponseEntity<?> getMember(@PathVariable int gym_id) {
-        return ResponseEntity.ok(memberRepository.getMembersProjection(gym_id));
+        return ResponseEntity.ok(userRepository.getMembersProjection(gym_id));
     }
 
     @GetMapping("/member/{member_id}")
@@ -81,30 +87,29 @@ public class MemberController {
             return sendErrorResponse("Gym not found", 404);
         }
         Map<String, Object> res = new HashMap<>();
-        Optional<Member> op_member=memberRepository.findById(member_id);
-        if (op_member.isEmpty()) {
+        User user=userRepository.findUserByIdAndUserType(member_id,UserType.member);
+        if (user == null) {
             return sendErrorResponse("Member not found", 404);
         }
-        Member member=op_member.get();
         res.put("total_active_memberships",membershipRepository.countActiveMemberShip(gym_id, member_id, PlanStatus.ACTIVE));
-        res.put("memberInfo",member);
+        res.put("memberInfo",user);
         res.put("planHistory", memberRepository.findPaymentDetailsByGymIdAndMemberId(gym_id, member_id));
         return ResponseEntity.ok(res);
     }
 
     @PutMapping("/member/{member_id}")
-    public ResponseEntity<?> updateMember(@PathVariable int gym_id, @PathVariable int member_id, @RequestBody Member updatedMember) {
+    public ResponseEntity<?> updateMember(@PathVariable int gym_id, @PathVariable int member_id, @RequestBody User updatedMember) {
         Optional<Gym> gymOpt = getGymById(gym_id);
         if (gymOpt.isEmpty()) {
             return sendErrorResponse("Gym not found", 404);
         }
 
-        Optional<Member> existingMemberOpt = memberRepository.findById(member_id);
+        Optional<User> existingMemberOpt = userRepository.findById(member_id);
         if (existingMemberOpt.isEmpty()) {
             return sendErrorResponse("Member not found", 404);
         }
 
-        Member existingMember = existingMemberOpt.get();
+        User existingMember = existingMemberOpt.get();
         if (existingMember.getGym().getId() != gym_id) {
             return sendErrorResponse("Member does not belong to this gym", 403);
         }
@@ -117,7 +122,7 @@ public class MemberController {
         existingMember.setState(updatedMember.getState());
         existingMember.setCountry(updatedMember.getCountry());
 
-        memberRepository.save(existingMember);
+        userRepository.save(existingMember);
         return sendSuccessResponse("Member updated successfully");
     }
 
@@ -128,17 +133,17 @@ public class MemberController {
             return sendErrorResponse("Gym not found", 404);
         }
 
-        Optional<Member> memberOpt = memberRepository.findById(member_id);
+        Optional<User> memberOpt = userRepository.findById(member_id);
         if (memberOpt.isEmpty()) {
             return sendErrorResponse("Member not found", 404);
         }
 
-        Member member = memberOpt.get();
+        User member = memberOpt.get();
         if (member.getGym().getId() != gym_id) {
                 return sendErrorResponse("Member does not belong to this gym", 403);
         }
 
-        memberRepository.delete(member);
+        userRepository.delete(member);
         return sendSuccessResponse("Member deleted successfully");
     }
 
