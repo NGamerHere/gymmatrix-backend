@@ -91,10 +91,7 @@ public class AdminTrainerController {
     }
     @GetMapping("/trainer/{trainer_id}")
     public ResponseEntity<?> getTrainer(@PathVariable int gym_id, @PathVariable int trainer_id) {
-         User trainer=userRepository.findUserByIdAndUserType(trainer_id,UserType.trainer);
-         if(trainer == null){
-             return ResponseEntity.status(404).body(Map.of("error","trainer not found"));
-         }
+         User trainer=userRepository.findUserByIdAndUserType(trainer_id,UserType.trainer).orElseThrow( () -> new ResourceNotFoundException("Trainer not found with id: " + trainer_id) );
          return ResponseEntity.ok(trainer);
     }
 

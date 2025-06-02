@@ -67,7 +67,7 @@ public interface UserRepository extends JpaRepository<User , Integer> {
         """, nativeQuery = true)
     List<MembersProjection> getMembersProjection(@Param("gym_id") int gymId);
 
-    User findUserByIdAndUserType(int id, UserType userType);
+    Optional<User> findUserByIdAndUserType(int id, UserType userType);
 
 
     @Query("""

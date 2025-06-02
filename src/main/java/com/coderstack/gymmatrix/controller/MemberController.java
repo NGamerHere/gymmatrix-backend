@@ -3,6 +3,7 @@ package com.coderstack.gymmatrix.controller;
 import com.coderstack.gymmatrix.dto.CreateMemberDto;
 import com.coderstack.gymmatrix.enums.PlanStatus;
 import com.coderstack.gymmatrix.enums.UserType;
+import com.coderstack.gymmatrix.exceptions.ResourceNotFoundException;
 import com.coderstack.gymmatrix.models.Gym;
 import com.coderstack.gymmatrix.models.Member;
 import com.coderstack.gymmatrix.models.User;
@@ -98,10 +99,7 @@ public class MemberController {
             return sendErrorResponse("Gym not found", 404);
         }
         Map<String, Object> res = new HashMap<>();
-        User user=userRepository.findUserByIdAndUserType(member_id,UserType.member);
-        if (user == null) {
-            return sendErrorResponse("Member not found", 404);
-        }
+        User user=userRepository.findUserByIdAndUserType(member_id,UserType.member).orElseThrow( () -> new ResourceNotFoundException("Member not found with id: " + member_id) );
         res.put("total_active_memberships",membershipRepository.countActiveMemberShip(gym_id, member_id, PlanStatus.ACTIVE));
         res.put("memberInfo",user);
         res.put("planHistory", memberRepository.findPaymentDetailsByGymIdAndMemberId(gym_id, member_id));

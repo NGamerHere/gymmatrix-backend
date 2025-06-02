@@ -2,12 +2,15 @@ package com.coderstack.gymmatrix.models;
 
 import com.coderstack.gymmatrix.enums.UserType;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Entity
 @Table(name = "users")
 public class User {
@@ -32,15 +35,16 @@ public class User {
 
     @ManyToOne
     @JoinColumn(name = "gym_id", nullable = false)
+    @JsonIgnore
     private Gym gym;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "trainer_id")
-    @JsonManagedReference("membership-user")
+    @JsonIgnoreProperties({"members"})
     private User trainer;
 
     @OneToMany(mappedBy = "trainer", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonBackReference("membership-user")
+    @JsonIgnoreProperties({"trainer"})
     private List<User> members = new ArrayList<>();
 
 

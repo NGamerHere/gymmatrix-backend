@@ -28,12 +28,6 @@ public class AuthController {
     private JwtUtil jwtUtil;
 
     @Autowired
-    private TrainerRepository trainerRepository;
-
-    @Autowired
-    private MemberRepository memberRepository;
-
-    @Autowired
     private UserRepository userRepository;
 
     @PostMapping("signin")

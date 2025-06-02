@@ -1,8 +1,10 @@
 package com.coderstack.gymmatrix.controller;
 
+import com.coderstack.gymmatrix.dto.NewTrainer;
+import com.coderstack.gymmatrix.enums.UserType;
 import com.coderstack.gymmatrix.exceptions.ResourceNotFoundException;
-import com.coderstack.gymmatrix.models.Trainer;
-import com.coderstack.gymmatrix.repository.TrainerRepository;
+import com.coderstack.gymmatrix.models.User;
+import com.coderstack.gymmatrix.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -10,29 +12,28 @@ import org.springframework.web.bind.annotation.*;
 @CrossOrigin
 @RequestMapping("/api/gym/{gym_id}/trainer/{trainer_id}")
 public class TrainerController {
-
     @Autowired
-    private TrainerRepository trainerRepository;
+    private UserRepository userRepository;
 
     @GetMapping("/info")
-    public Trainer getTrainer(@PathVariable("trainer_id") int trainer_id, @PathVariable("gym_id") long gym_id) {
-        return trainerRepository.findById(trainer_id).orElseThrow( () -> new ResourceNotFoundException("Trainer not found with id: " + trainer_id) );
+    public User getTrainer(@PathVariable("trainer_id") int trainer_id, @PathVariable("gym_id") long gym_id) {
+        return userRepository.findById(trainer_id).orElseThrow( () -> new ResourceNotFoundException("Trainer not found with id: " + trainer_id));
     }
 
     @PutMapping("/info")
-    public Trainer editTrainer(@PathVariable("trainer_id") int trainer_id, @RequestBody Trainer trainer, @PathVariable String gym_id) {
-        Trainer dbTrainer=trainerRepository.findById(trainer_id).orElseThrow( () -> new ResourceNotFoundException("Trainer not found with id: " + trainer_id) );
-        dbTrainer.setName(trainer.getName());
-        dbTrainer.setEmail(trainer.getEmail());
-        dbTrainer.setAge(trainer.getAge());
-        dbTrainer.setGender(trainer.getGender());
-        dbTrainer.setAddress(trainer.getAddress());
-        dbTrainer.setPhone(trainer.getPhone());
-        dbTrainer.setState(trainer.getState());
-        dbTrainer.setCountry(trainer.getCountry());
-        dbTrainer.setCity(trainer.getCity());
-        dbTrainer.setZip(trainer.getZip());
-        return trainerRepository.save(dbTrainer);
+    public User editTrainer(@PathVariable("trainer_id") int trainer_id, @RequestBody NewTrainer trainer, @PathVariable String gym_id) {
+        User dbTrainer=userRepository.findUserByIdAndUserType(trainer_id, UserType.trainer).orElseThrow( () -> new ResourceNotFoundException("Trainer not found with id: " + trainer_id) );
+        dbTrainer.setName(trainer.name);
+        dbTrainer.setEmail(trainer.email);
+        dbTrainer.setAge(trainer.age);
+        dbTrainer.setGender(trainer.gender);
+        dbTrainer.setAddress(trainer.address);
+        dbTrainer.setPhone(trainer.phone);
+        dbTrainer.setState(trainer.state);
+        dbTrainer.setCountry(trainer.country);
+        dbTrainer.setCity(trainer.city);
+        dbTrainer.setZip(trainer.zip);
+        return userRepository.save(dbTrainer);
     }
 
 }
