@@ -1,11 +1,7 @@
 package com.coderstack.gymmatrix.controller;
 
 import com.coderstack.gymmatrix.dto.SignIn;
-import com.coderstack.gymmatrix.enums.UserType;
 import com.coderstack.gymmatrix.models.*;
-import com.coderstack.gymmatrix.repository.AdminRepository;
-import com.coderstack.gymmatrix.repository.MemberRepository;
-import com.coderstack.gymmatrix.repository.TrainerRepository;
 import com.coderstack.gymmatrix.repository.UserRepository;
 import com.coderstack.gymmatrix.utils.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,9 +17,6 @@ import java.util.Map;
 @CrossOrigin
 @RequestMapping("/api/auth")
 public class AuthController {
-    @Autowired
-    private AdminRepository adminRepository;
-
     @Autowired
     private JwtUtil jwtUtil;
 

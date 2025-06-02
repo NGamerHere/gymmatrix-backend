@@ -5,13 +5,10 @@ import com.coderstack.gymmatrix.enums.PlanStatus;
 import com.coderstack.gymmatrix.enums.UserType;
 import com.coderstack.gymmatrix.exceptions.ResourceNotFoundException;
 import com.coderstack.gymmatrix.models.Gym;
-import com.coderstack.gymmatrix.models.Member;
 import com.coderstack.gymmatrix.models.User;
 import com.coderstack.gymmatrix.repository.GymRepository;
-import com.coderstack.gymmatrix.repository.MemberRepository;
 import com.coderstack.gymmatrix.repository.MembershipRepository;
 import com.coderstack.gymmatrix.repository.UserRepository;
-import com.coderstack.gymmatrix.service.AdminStatsService;
 import com.coderstack.gymmatrix.service.DuplicateCheckService;
 import com.coderstack.gymmatrix.service.MailService;
 import com.coderstack.gymmatrix.service.PasswordGenerator;
@@ -30,9 +27,6 @@ import static com.coderstack.gymmatrix.service.RespoanceService.sendSuccessRespo
 @CrossOrigin
 @RequestMapping("/api/gym/{gym_id}/admin/{admin_id}")
 public class MemberController {
-
-    @Autowired
-    private MemberRepository memberRepository;
 
     @Autowired
     private GymRepository gymRepository;
@@ -102,7 +96,7 @@ public class MemberController {
         User user=userRepository.findUserByIdAndUserType(member_id,UserType.member).orElseThrow( () -> new ResourceNotFoundException("Member not found with id: " + member_id) );
         res.put("total_active_memberships",membershipRepository.countActiveMemberShip(gym_id, member_id, PlanStatus.ACTIVE));
         res.put("memberInfo",user);
-        res.put("planHistory", memberRepository.findPaymentDetailsByGymIdAndMemberId(gym_id, member_id));
+        res.put("planHistory", userRepository.findPaymentDetailsByGymIdAndMemberId(gym_id, member_id));
         return ResponseEntity.ok(res);
     }
 

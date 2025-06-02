@@ -36,12 +36,6 @@ public class MembershipController {
     private MembershipPlanRepository membershipPlanRepository;
 
     @Autowired
-    private MemberRepository memberRepository;
-
-    @Autowired
-    private AdminRepository adminRepository;
-
-    @Autowired
     private PaymentRepository paymentRepository;
 
     @Autowired
