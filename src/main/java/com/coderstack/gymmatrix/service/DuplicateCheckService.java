@@ -20,7 +20,7 @@ public class DuplicateCheckService {
     public Map<String, String> checkDuplicate(int gymId, String phone, String email) {
         Map<String, String> errors = new HashMap<>();
 
-        List<User> users=userRepository.findDuplicates(gymId, phone, email);
+        List<User> users=userRepository.findDuplicates(phone, email);
         if (users.stream().anyMatch(m -> m.getPhone().equals(phone))) {
             errors.put("phone", "Phone number already exists");
         }

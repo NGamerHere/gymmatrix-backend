@@ -18,8 +18,8 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<User , Integer> {
     User findUserByEmailAndUserType(String email, UserType userType);
 
-    @Query("SELECT u FROM User u WHERE u.id != :id AND u.email = :email AND u.phone = :phone")
-    List<User> findDuplicates(@Param("id") int id, @Param("email") String email, @Param("phone") String phone);
+    @Query("SELECT u FROM User u WHERE u.email = :email AND u.phone = :phone")
+    List<User> findDuplicates(@Param("email") String email, @Param("phone") String phone);
 
     List<User> findByGym(Gym gym);
 

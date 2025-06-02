@@ -1,16 +1,12 @@
 package com.coderstack.gymmatrix.controller;
 
+import com.coderstack.gymmatrix.dto.NewTrainer;
 import com.coderstack.gymmatrix.dto.TrainerAssignmentRequest;
-import com.coderstack.gymmatrix.dto.TrainerDTO;
 import com.coderstack.gymmatrix.enums.UserType;
 import com.coderstack.gymmatrix.exceptions.ResourceNotFoundException;
 import com.coderstack.gymmatrix.models.Gym;
-import com.coderstack.gymmatrix.models.Member;
-import com.coderstack.gymmatrix.models.Trainer;
 import com.coderstack.gymmatrix.models.User;
 import com.coderstack.gymmatrix.repository.GymRepository;
-import com.coderstack.gymmatrix.repository.MemberRepository;
-import com.coderstack.gymmatrix.repository.TrainerRepository;
 import com.coderstack.gymmatrix.repository.UserRepository;
 import com.coderstack.gymmatrix.service.DuplicateCheckService;
 import com.coderstack.gymmatrix.service.MailService;
@@ -45,12 +41,15 @@ public class AdminTrainerController {
 
 
     @PostMapping("/trainer")
-    public ResponseEntity<?> trainer(@PathVariable int gym_id, @RequestBody User trainer) {
+    public ResponseEntity<?> trainer(@PathVariable int gym_id, @RequestBody NewTrainer trainer) {
         HashMap<String, Object> res = new HashMap<>();
         Gym gym = gymRepository.findById(gym_id)
                 .orElseThrow(() -> new RuntimeException("GYM not found"));
 
-        Map<String, String> duplicate = duplicateCheckService.checkDuplicate(gym.getId(), trainer.getPhone(), trainer.getEmail());
+        System.out.println(trainer.email);
+        System.out.println(trainer.phone);
+
+        Map<String, String> duplicate = duplicateCheckService.checkDuplicate(gym.getId(), trainer.phone, trainer.email);
 
         if (!duplicate.isEmpty()) {
             if (duplicate.get("phone") != null) {
@@ -59,14 +58,27 @@ public class AdminTrainerController {
                 return sendErrorResponse("Email already exists", 409);
             }
         }
-        trainer.setUserType(UserType.trainer);
-        trainer.setGym(gym);
+
+
+        User newTrainer = new User();
+        newTrainer.setName(trainer.name);
+        newTrainer.setEmail(trainer.email);
+        newTrainer.setPhone(trainer.phone);
+        newTrainer.setGender(trainer.gender);
+        newTrainer.setAge(trainer.age);
+        newTrainer.setAddress(trainer.address);
+        newTrainer.setCity(trainer.city);
+        newTrainer.setState(trainer.state);
+        newTrainer.setCountry(trainer.country);
+        newTrainer.setZip(trainer.zip);
+        newTrainer.setGym(gym);
+        newTrainer.setUserType(UserType.trainer);
         String password = PasswordGenerator.generateRandomPassword(10);
-        trainer.setPassword(password);
-        mailService.sendWelcomeEmail(UserType.trainer,trainer.getEmail(), trainer.getName(), password, "",trainer.getGym().getName());
-        User newTrainer = userRepository.save(trainer);
+        newTrainer.setPassword(password);
+        mailService.sendWelcomeEmail(UserType.trainer,newTrainer.getEmail(), newTrainer.getName(), password, "",newTrainer.getGym().getName());
+        User savedTrainer = userRepository.save(newTrainer);
         res.put("status", "success");
-        res.put("id", newTrainer.getId());
+        res.put("id", savedTrainer.getId());
         return ResponseEntity.ok(res);
     }
 

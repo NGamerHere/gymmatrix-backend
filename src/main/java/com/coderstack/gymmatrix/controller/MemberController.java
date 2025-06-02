@@ -1,5 +1,6 @@
 package com.coderstack.gymmatrix.controller;
 
+import com.coderstack.gymmatrix.dto.CreateMemberDto;
 import com.coderstack.gymmatrix.enums.PlanStatus;
 import com.coderstack.gymmatrix.enums.UserType;
 import com.coderstack.gymmatrix.models.Gym;
@@ -48,7 +49,7 @@ public class MemberController {
     private UserRepository userRepository;
 
     @PostMapping("/member")
-    public ResponseEntity<?> addNewUser(@PathVariable int gym_id, @RequestBody User newMember) {
+    public ResponseEntity<?> addNewUser(@PathVariable int gym_id, @RequestBody CreateMemberDto memberDto) {
         Optional<Gym> gymOpt = getGymById(gym_id);
         if (gymOpt.isEmpty()) {
             return sendErrorResponse("Gym not found", 404);
@@ -56,7 +57,7 @@ public class MemberController {
 
         Gym gym = gymOpt.get();
         Map<String, String> duplicate = duplicateCheckService.checkDuplicate(
-                gym.getId(), newMember.getPhone(), newMember.getEmail());
+                gym.getId(), memberDto.phone, memberDto.email);
 
         if (!duplicate.isEmpty()) {
             if (duplicate.get("phone") != null) {
@@ -65,7 +66,17 @@ public class MemberController {
                 return sendErrorResponse("Email already exists", 409);
             }
         }
-
+        User newMember = new User();
+        newMember.setName(memberDto.name);
+        newMember.setEmail(memberDto.email);
+        newMember.setPhone(memberDto.phone);
+        newMember.setGender(memberDto.gender);
+        newMember.setAge(memberDto.age);
+        newMember.setAddress(memberDto.address);
+        newMember.setCity(memberDto.city);
+        newMember.setState(memberDto.state);
+        newMember.setCountry(memberDto.country);
+        newMember.setZip(memberDto.zip);
         newMember.setGym(gym);
         String password=PasswordGenerator.generateRandomPassword(10);
         newMember.setPassword(password);
