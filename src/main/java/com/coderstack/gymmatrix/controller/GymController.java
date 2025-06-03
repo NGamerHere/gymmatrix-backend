@@ -1,11 +1,9 @@
 package com.coderstack.gymmatrix.controller;
 
 import com.coderstack.gymmatrix.dto.NewGym;
-import com.coderstack.gymmatrix.models.Admin;
 import com.coderstack.gymmatrix.models.Gym;
 import com.coderstack.gymmatrix.enums.UserType;
 import com.coderstack.gymmatrix.models.User;
-import com.coderstack.gymmatrix.repository.AdminRepository;
 import com.coderstack.gymmatrix.repository.GymRepository;
 import com.coderstack.gymmatrix.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
