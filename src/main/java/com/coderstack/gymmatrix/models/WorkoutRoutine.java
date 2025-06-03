@@ -1,5 +1,6 @@
 package com.coderstack.gymmatrix.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -17,6 +18,11 @@ public class WorkoutRoutine {
     private LocalDateTime createdAt;
 
     @ManyToOne
+    @JoinColumn(name = "added_by",nullable = false)
+    private User addedBy;
+
+    @ManyToOne
+    @JsonIgnore
     @JoinColumn(name = "gym_id", nullable = false)
     private Gym gym;
 
@@ -27,6 +33,15 @@ public class WorkoutRoutine {
     protected void onCreate() {
         createdAt = LocalDateTime.now();
     }
+
+    public User getAddedBy(){
+        return addedBy;
+    }
+
+    public void setAddedBy(User addedBy){
+        this.addedBy=addedBy;
+    }
+
 
     // Getters and Setters
     public int getId() {

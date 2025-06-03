@@ -5,6 +5,7 @@ import com.coderstack.gymmatrix.models.Equipment;
 import com.coderstack.gymmatrix.models.Gym;
 import com.coderstack.gymmatrix.repository.EquipmentRepository;
 import com.coderstack.gymmatrix.repository.GymRepository;
+import com.coderstack.gymmatrix.service.S3UploadService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -30,6 +31,9 @@ public class EquipmentController {
     @Autowired
     private GymRepository gymRepository;
 
+    @Autowired
+    private S3UploadService s3UploadService;
+
     @PostMapping(value = "/gym/{gym_id}/admin/{admin_id}/equipment", consumes = "multipart/form-data")
     public ResponseEntity<?> addEquipment(
             @PathVariable int gym_id,
@@ -48,6 +52,7 @@ public class EquipmentController {
         newEquipment.setRemarks(remarks);
         newEquipment.setEquipmentPhotoLink(savedPath);
 
+        s3UploadService.uploadFile(savedPath, file.getBytes());
         equipmentRepository.save(newEquipment);
 
         return ResponseEntity.ok(Map.of("message", "Equipment saved successfully"));
