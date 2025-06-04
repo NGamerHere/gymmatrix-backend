@@ -13,6 +13,10 @@ public class MemberWorkoutAssignment {
     private LocalDate assignedDate;
 
     @ManyToOne
+    @JoinColumn(name = "gym_id",nullable = false)
+    private Gym gym;
+
+    @ManyToOne
     @JoinColumn(name = "member_id", nullable = false)
     private User member;
 
@@ -21,6 +25,14 @@ public class MemberWorkoutAssignment {
     private WorkoutRoutine routine;
 
     private String customNotes;
+
+    public void setGym(Gym gym){
+        this.gym=gym;
+    }
+
+    public Gym getGym(){
+        return gym;
+    }
 
     // Getters and Setters
     public int getId() {

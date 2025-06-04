@@ -1,14 +1,12 @@
 package com.coderstack.gymmatrix.controller;
 
+import com.coderstack.gymmatrix.dto.NewMemberAssignment;
 import com.coderstack.gymmatrix.dto.NewWorkoutExercises;
 import com.coderstack.gymmatrix.dto.NewWorkoutRoutines;
 import com.coderstack.gymmatrix.enums.UserType;
 import com.coderstack.gymmatrix.exceptions.ResourceNotFoundException;
 import com.coderstack.gymmatrix.models.*;
-import com.coderstack.gymmatrix.repository.EquipmentRepository;
-import com.coderstack.gymmatrix.repository.GymRepository;
-import com.coderstack.gymmatrix.repository.UserRepository;
-import com.coderstack.gymmatrix.repository.WorkoutRoutineRepository;
+import com.coderstack.gymmatrix.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -34,6 +32,9 @@ public class WorkoutController {
 
     @Autowired
     private EquipmentRepository equipmentRepository;
+
+    @Autowired
+    private MemberWorkoutAssignmentRepository memberWorkoutAssignmentRepository;
 
     @PostMapping(value = "/gym/{gym_id}/{role}/{role_id}/workout-routine")
     public ResponseEntity<?> addNewWorkoutRoutine(@PathVariable int gym_id, @PathVariable UserType role, @PathVariable int role_id, @RequestBody NewWorkoutRoutines newWorkoutroutines){
@@ -163,6 +164,26 @@ public class WorkoutController {
         } else {
             return ResponseEntity.status(403).body(Map.of("error", "you can't access this resource"));
         }
+    }
+
+    @PostMapping("/gym/{gym_id}/{role}/{role_id}/workout-member-assignment")
+    public ResponseEntity<?> newMemberAssignment(@PathVariable int gym_id, @RequestBody NewMemberAssignment newMemberAssignment){
+        Gym gym = gymRepository.findById(gym_id).orElseThrow(() -> new ResourceNotFoundException("Gym not found"));
+        User member=userRepository.findUserByIdAndUserType(newMemberAssignment.memberId,UserType.member).orElseThrow(() -> new ResourceNotFoundException("Member not found"));
+        WorkoutRoutine workoutRoutine=workoutRoutineRepository.findById(newMemberAssignment.routineId).orElseThrow(() -> new ResourceNotFoundException("Workout Routine not found"));
+        MemberWorkoutAssignment newAssignment=new MemberWorkoutAssignment();
+        newAssignment.setGym(gym);
+        newAssignment.setMember(member);
+        newAssignment.setRoutine(workoutRoutine);
+        memberWorkoutAssignmentRepository.save(newAssignment);
+        return ResponseEntity.ok(Map.of("message","workout assigned successfully"));
+    }
+
+    @GetMapping("/gym/{gym_id}/{role}/{role_id}/workout/member")
+    public ResponseEntity<?> getWorkoutAssignment(@PathVariable int gym_id,@PathVariable UserType role,@PathVariable int role_id){
+        Gym gym = gymRepository.findById(gym_id).orElseThrow(() -> new ResourceNotFoundException("Gym not found"));
+        User member=userRepository.findUserByIdAndUserType(role_id,UserType.member).orElseThrow(() -> new ResourceNotFoundException("Member not found"));
+        return ResponseEntity.ok(memberWorkoutAssignmentRepository.findByGymAndMember(gym,member));
     }
 
 
