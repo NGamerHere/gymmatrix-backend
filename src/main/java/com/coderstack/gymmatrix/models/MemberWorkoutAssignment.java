@@ -1,6 +1,8 @@
 package com.coderstack.gymmatrix.models;
 
 import jakarta.persistence.*;
+
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 
 @Entity
@@ -11,6 +13,9 @@ public class MemberWorkoutAssignment {
     private int id;
 
     private LocalDate assignedDate;
+
+    @Enumerated(EnumType.STRING)
+    private DayOfWeek dayOfWeek;
 
     @ManyToOne
     @JoinColumn(name = "gym_id",nullable = false)
@@ -25,6 +30,14 @@ public class MemberWorkoutAssignment {
     private WorkoutRoutine routine;
 
     private String customNotes;
+
+    public void setDayOfWeek(DayOfWeek dayOfWeek) {
+        this.dayOfWeek = dayOfWeek;
+    }
+
+    public DayOfWeek getDayOfWeek() {
+        return dayOfWeek;
+    }
 
     public void setGym(Gym gym){
         this.gym=gym;

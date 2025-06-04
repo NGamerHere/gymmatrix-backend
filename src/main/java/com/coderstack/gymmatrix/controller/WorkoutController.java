@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -37,22 +38,69 @@ public class WorkoutController {
     private MemberWorkoutAssignmentRepository memberWorkoutAssignmentRepository;
 
     @PostMapping(value = "/gym/{gym_id}/{role}/{role_id}/workout-routine")
-    public ResponseEntity<?> addNewWorkoutRoutine(@PathVariable int gym_id, @PathVariable UserType role, @PathVariable int role_id, @RequestBody NewWorkoutRoutines newWorkoutroutines){
-        if(role == UserType.admin || role == UserType.trainer ){
-            Gym gym=gymRepository.findById(gym_id).orElseThrow(()-> new ResourceNotFoundException("gym not found"));
-            User user=userRepository.findUserByIdAndUserType(role_id,role).orElseThrow(()-> new ResourceNotFoundException("User not found"));
-            WorkoutRoutine workoutRoutine=new WorkoutRoutine();
-            workoutRoutine.setRoutineName(newWorkoutroutines.routineName);
-            workoutRoutine.setDescription(newWorkoutroutines.description);
-            workoutRoutine.setGym(gym);
-            workoutRoutine.setAddedBy(user);
-            WorkoutRoutine newworkoutRoutine=workoutRoutineRepository.save(workoutRoutine);
-            return ResponseEntity.ok(Map.of("message","routine saved successfully","id",newworkoutRoutine.getId()));
-        }else {
-            return ResponseEntity.status(403).body(Map.of("error","you cant access this resource"));
-        }
+    public ResponseEntity<?> addNewWorkoutRoutine(@PathVariable int gym_id,
+                                                  @PathVariable UserType role,
+                                                  @PathVariable int role_id,
+                                                  @RequestBody NewWorkoutRoutines newWorkoutroutines) {
+        if (role == UserType.admin || role == UserType.trainer) {
+            Gym gym = gymRepository.findById(gym_id)
+                    .orElseThrow(() -> new ResourceNotFoundException("gym not found"));
 
+            User user = userRepository.findUserByIdAndUserType(role_id, role)
+                    .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+            if (!newWorkoutroutines.isTemplate()) {
+                if (newWorkoutroutines.getMemberId() == 0 || newWorkoutroutines.getRoutineId() == null) {
+                    return ResponseEntity.status(400).body(Map.of("error", "memberId and routineId are required"));
+                }
+
+                User member = userRepository.findUserByIdAndUserType(newWorkoutroutines.getMemberId(), UserType.member)
+                        .orElseThrow(() -> new ResourceNotFoundException("Member not found"));
+
+                if (role == UserType.admin && member.getTrainer().getId() != role_id) {
+                    return ResponseEntity.status(401).body(Map.of("error", "you can't have access to assign the template to this user"));
+                }
+
+                Optional<WorkoutRoutine> opWorkoutRoutine = workoutRoutineRepository.findById(newWorkoutroutines.getRoutineId());
+                if (opWorkoutRoutine.isEmpty()) {
+                    return ResponseEntity.status(404).body(Map.of("error", "template routine not found"));
+                }
+
+                WorkoutRoutine templateRoutine = opWorkoutRoutine.get();
+                WorkoutRoutine memberRoutine = new WorkoutRoutine();
+                memberRoutine.setRoutineName(templateRoutine.getRoutineName());
+                memberRoutine.setDescription(templateRoutine.getDescription());
+                memberRoutine.setGym(gym);
+                memberRoutine.setAddedBy(user);
+
+
+                memberRoutine.setIsTemplate(false);
+
+                WorkoutRoutine savedRoutine = workoutRoutineRepository.save(memberRoutine);
+                MemberWorkoutAssignment newAssignment = new MemberWorkoutAssignment();
+                newAssignment.setGym(gym);
+                newAssignment.setMember(member);
+                newAssignment.setRoutine(savedRoutine);
+                newAssignment.setDayOfWeek(newWorkoutroutines.getDayOfWeek());
+                memberWorkoutAssignmentRepository.save(newAssignment);
+
+                return ResponseEntity.ok(Map.of("message", "routine assigned to member", "id", savedRoutine.getId()));
+            } else {
+                WorkoutRoutine workoutRoutine = new WorkoutRoutine();
+                workoutRoutine.setRoutineName(newWorkoutroutines.getRoutineName());
+                workoutRoutine.setDescription(newWorkoutroutines.getDescription());
+                workoutRoutine.setGym(gym);
+                workoutRoutine.setAddedBy(user);
+                workoutRoutine.setIsTemplate(true);
+
+                WorkoutRoutine savedRoutine = workoutRoutineRepository.save(workoutRoutine);
+                return ResponseEntity.ok(Map.of("message", "routine template saved successfully", "id", savedRoutine.getId()));
+            }
+        } else {
+            return ResponseEntity.status(403).body(Map.of("error", "you can't access this resource"));
+        }
     }
+
 
     @PostMapping(value = "/gym/{gym_id}/{role}/{role_id}/workout-exercise/{workout_routine_id}")
     public ResponseEntity<?> addNewWorkoutExercise(@PathVariable int gym_id,
@@ -167,27 +215,29 @@ public class WorkoutController {
     }
 
     @PostMapping("/gym/{gym_id}/{role}/{role_id}/workout-member-assignment")
-    public ResponseEntity<?> newMemberAssignment(@PathVariable int gym_id, @RequestBody NewMemberAssignment newMemberAssignment){
+    public ResponseEntity<?> newMemberAssignment(@PathVariable int gym_id, @RequestBody NewMemberAssignment newMemberAssignment) {
         Gym gym = gymRepository.findById(gym_id).orElseThrow(() -> new ResourceNotFoundException("Gym not found"));
-        User member=userRepository.findUserByIdAndUserType(newMemberAssignment.memberId,UserType.member).orElseThrow(() -> new ResourceNotFoundException("Member not found"));
-        WorkoutRoutine workoutRoutine=workoutRoutineRepository.findById(newMemberAssignment.routineId).orElseThrow(() -> new ResourceNotFoundException("Workout Routine not found"));
-        MemberWorkoutAssignment newAssignment=new MemberWorkoutAssignment();
+        User member = userRepository.findUserByIdAndUserType(newMemberAssignment.memberId, UserType.member).orElseThrow(() -> new ResourceNotFoundException("Member not found"));
+        WorkoutRoutine workoutRoutine = workoutRoutineRepository.findById(newMemberAssignment.routineId).orElseThrow(() -> new ResourceNotFoundException("Workout Routine not found"));
+        MemberWorkoutAssignment check = memberWorkoutAssignmentRepository.findByMemberAndDayOfWeek(member, newMemberAssignment.dayOfWeek);
+        if (check != null) {
+            return ResponseEntity.status(400).body(Map.of("error", "Workout routine for that day already do exists for that user"));
+        }
+        MemberWorkoutAssignment newAssignment = new MemberWorkoutAssignment();
         newAssignment.setGym(gym);
         newAssignment.setMember(member);
         newAssignment.setRoutine(workoutRoutine);
+        newAssignment.setDayOfWeek(newMemberAssignment.dayOfWeek);
         memberWorkoutAssignmentRepository.save(newAssignment);
-        return ResponseEntity.ok(Map.of("message","workout assigned successfully"));
+        return ResponseEntity.ok(Map.of("message", "workout assigned successfully"));
     }
 
     @GetMapping("/gym/{gym_id}/{role}/{role_id}/workout/member")
-    public ResponseEntity<?> getWorkoutAssignment(@PathVariable int gym_id,@PathVariable UserType role,@PathVariable int role_id){
+    public ResponseEntity<?> getWorkoutAssignment(@PathVariable int gym_id, @PathVariable UserType role, @PathVariable int role_id) {
         Gym gym = gymRepository.findById(gym_id).orElseThrow(() -> new ResourceNotFoundException("Gym not found"));
-        User member=userRepository.findUserByIdAndUserType(role_id,UserType.member).orElseThrow(() -> new ResourceNotFoundException("Member not found"));
-        return ResponseEntity.ok(memberWorkoutAssignmentRepository.findByGymAndMember(gym,member));
+        User member = userRepository.findUserByIdAndUserType(role_id, UserType.member).orElseThrow(() -> new ResourceNotFoundException("Member not found"));
+        return ResponseEntity.ok(memberWorkoutAssignmentRepository.findByGymAndMember(gym, member));
     }
-
-
-
 
 
 }

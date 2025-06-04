@@ -14,6 +14,7 @@ public class WorkoutRoutine {
 
     private String routineName;
     private String description;
+    private boolean isTemplate = true;
 
     private LocalDateTime createdAt;
 
@@ -44,6 +45,14 @@ public class WorkoutRoutine {
 
 
     // Getters and Setters
+    public boolean getIsTemplate() {
+        return isTemplate;
+    }
+
+    public void setIsTemplate(boolean isTemplate) {
+        this.isTemplate = isTemplate;
+    }
+
     public int getId() {
         return id;
     }
@@ -58,6 +67,10 @@ public class WorkoutRoutine {
 
     public void setRoutineName(String routineName) {
         this.routineName = routineName;
+    }
+
+    public boolean isTemplate() {
+        return isTemplate;
     }
 
     public String getDescription() {
@@ -91,4 +104,5 @@ public class WorkoutRoutine {
     public void setExercises(List<WorkoutExercise> exercises) {
         this.exercises = exercises;
     }
+
 }
