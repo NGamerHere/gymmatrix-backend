@@ -102,12 +102,12 @@ public class WorkoutController {
     }
 
 
-    @PostMapping(value = "/gym/{gym_id}/{role}/{role_id}/workout-exercise/{workout_routine_id}")
+    @PostMapping(value = "/gym/{gym_id}/{role}/{role_id}/workout-routine/{workout_routine_id}/workout-exercises")
     public ResponseEntity<?> addNewWorkoutExercise(@PathVariable int gym_id,
                                                    @PathVariable UserType role,
                                                    @PathVariable int role_id,
                                                    @PathVariable int workout_routine_id,
-                                                   @RequestBody List<NewWorkoutExercises> newWorkoutRoutines) {
+                                                   @RequestBody List<NewWorkoutExercises> newWorkoutExercises) {
         if (role == UserType.admin || role == UserType.trainer) {
             Gym gym = gymRepository.findById(gym_id)
                     .orElseThrow(() -> new ResourceNotFoundException("gym not found"));
@@ -120,7 +120,7 @@ public class WorkoutController {
             existingExercises.clear();
 
 
-            for (NewWorkoutExercises dto : newWorkoutRoutines) {
+            for (NewWorkoutExercises dto : newWorkoutExercises) {
                 WorkoutExercise exercise = new WorkoutExercise();
                 exercise.setExerciseName(dto.exerciseName);
                 exercise.setSets(dto.sets);
@@ -143,7 +143,8 @@ public class WorkoutController {
         }
     }
 
-    @GetMapping(value = "/gym/{gym_id}/{role}/{role_id}/workout-exercise/{workout_routine_id}")
+
+    @GetMapping(value = "/gym/{gym_id}/{role}/{role_id}/workout-routine/{workout_routine_id}/workout-exercises")
     public ResponseEntity<?> getWorkoutExercises(@PathVariable int gym_id,
                                                  @PathVariable UserType role,
                                                  @PathVariable int role_id,
@@ -191,7 +192,7 @@ public class WorkoutController {
             User user = userRepository.findUserByIdAndUserType(role_id, role)
                     .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-            List<WorkoutRoutine> routines = workoutRoutineRepository.findByGym(gym);
+            List<WorkoutRoutine> routines = workoutRoutineRepository.findByGymAndIsTemplate(gym, true);
 
 
             List<Map<String, Object>> result = routines.stream().map(routine -> Map.of(
