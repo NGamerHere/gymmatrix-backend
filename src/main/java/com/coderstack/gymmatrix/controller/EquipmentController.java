@@ -13,10 +13,12 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 
@@ -60,10 +62,23 @@ public class EquipmentController {
 
 
     @GetMapping("/gym/{gym_id}/{role}/{role_id}/equipment")
-    public List<Equipment> getEquipments(@PathVariable int gym_id){
-        Gym gym=gymRepository.findById(gym_id).orElseThrow(() -> new ResourceNotFoundException("gym not found"));
-        return equipmentRepository.findByGym(gym);
+    public List<Equipment> getEquipments(@PathVariable int gym_id) {
+        Gym gym = gymRepository.findById(gym_id)
+                .orElseThrow(() -> new ResourceNotFoundException("gym not found"));
+
+        List<Equipment> equipments = equipmentRepository.findByGym(gym);
+
+        equipments.forEach(equipment -> {
+            if (equipment.getEquipmentPhotoLink() != null && !equipment.getEquipmentPhotoLink().isEmpty()) {
+                String key = equipment.getEquipmentPhotoLink();
+                URL fileUrl = s3UploadService.generatePresignedUrl(key, Duration.ofMinutes(15));
+                equipment.setEquipmentPhotoLink(fileUrl.toString());
+            }
+        });
+
+        return equipments;
     }
+
 
     private String saveImage(MultipartFile file) throws IOException {
         Path uploadPath = Paths.get(uploadDir);
