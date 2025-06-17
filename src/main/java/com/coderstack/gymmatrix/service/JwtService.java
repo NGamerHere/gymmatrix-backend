@@ -25,6 +25,8 @@ public class JwtService {
     }
 
     public boolean hasRole(Claims claims, UserType role) {
+        System.out.println(" role.name() " +role.name());
+        System.out.println(" clamis " +claims.get("role"));
         return claims != null && role.name().equals(claims.get("role"));
     }
 

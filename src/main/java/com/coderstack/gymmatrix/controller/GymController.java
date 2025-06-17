@@ -1,11 +1,11 @@
 package com.coderstack.gymmatrix.controller;
 
 import com.coderstack.gymmatrix.dto.NewGym;
-import com.coderstack.gymmatrix.models.Admin;
 import com.coderstack.gymmatrix.models.Gym;
 import com.coderstack.gymmatrix.enums.UserType;
-import com.coderstack.gymmatrix.repository.AdminRepository;
+import com.coderstack.gymmatrix.models.User;
 import com.coderstack.gymmatrix.repository.GymRepository;
+import com.coderstack.gymmatrix.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -18,9 +18,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @CrossOrigin
 @RequestMapping("/api")
 public class GymController {
-
     @Autowired
-    private AdminRepository adminRepository;
+    private UserRepository userRepository;
 
     @Autowired
     private GymRepository gymRepository;
@@ -39,25 +38,25 @@ public class GymController {
         gym.setEmail(newGym.email);
         Gym savedGym=gymRepository.save(gym);
 
-        Admin admin = getAdmin(newGym, savedGym);
-        adminRepository.save(admin);
-        return ResponseEntity.ok("Gym and admin added successfully");
+        User user = getUser(newGym, savedGym);
+        userRepository.save(user);
+        return ResponseEntity.ok("Gym and user added successfully");
     }
-    private static Admin getAdmin(NewGym newGym, Gym savedGym) {
-        Admin admin = new Admin();
-        admin.setName(newGym.name);
-        admin.setPassword(newGym.password);
-        admin.setEmail(newGym.email);
-        admin.setAge(newGym.age);
-        admin.setGender(newGym.gender);
-        admin.setAddress(newGym.address);
-        admin.setPhone(newGym.phone);
-        admin.setCity(newGym.city);
-        admin.setState(newGym.state);
-        admin.setCountry(newGym.country);
-        admin.setZip(newGym.zip);
-        admin.setUserType(UserType.admin);
-        admin.setGym(savedGym);
-        return admin;
+    private static User getUser(NewGym newGym, Gym savedGym) {
+        User user = new User();
+        user.setName(newGym.name);
+        user.setPassword(newGym.password);
+        user.setEmail(newGym.email);
+        user.setAge(newGym.age);
+        user.setGender(newGym.gender);
+        user.setAddress(newGym.address);
+        user.setPhone(newGym.phone);
+        user.setCity(newGym.city);
+        user.setState(newGym.state);
+        user.setCountry(newGym.country);
+        user.setZip(newGym.zip);
+        user.setUserType(UserType.admin);
+        user.setGym(savedGym);
+        return user;
     }
 }

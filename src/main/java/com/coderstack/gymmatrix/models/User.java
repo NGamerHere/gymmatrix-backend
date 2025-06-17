@@ -1,14 +1,23 @@
 package com.coderstack.gymmatrix.models;
 
 import com.coderstack.gymmatrix.enums.UserType;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Entity
-@Table(name = "admins")
-public class Admin {
+@Table(name = "users")
+public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+
     private String name;
     private String password;
     private String email;
@@ -20,18 +29,48 @@ public class Admin {
     private String state;
     private String country;
     private String zip;
+
     @Enumerated(EnumType.STRING)
-    private UserType user_type;
+    private UserType userType;
+
     @ManyToOne
-    @JoinColumn(name = "gym_id",nullable = false)
+    @JoinColumn(name = "gym_id", nullable = false)
+    @JsonIgnore
     private Gym gym;
 
-    public void setGym(Gym gym) {
-        this.gym = gym;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "trainer_id")
+    @JsonIgnoreProperties({"members"})
+    private User trainer;
+
+    @OneToMany(mappedBy = "trainer", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnoreProperties({"trainer"})
+    private List<User> members = new ArrayList<>();
+
+
+    public User getTrainer() {
+        return trainer;
     }
+
+    public void setTrainer(User trainer) {
+        this.trainer = trainer;
+    }
+
+    public List<User> getMembers() {
+        return members;
+    }
+
+    public void setMembers(List<User> members) {
+        this.members = members;
+    }
+
 
     public Gym getGym() {
         return gym;
+    }
+
+    public void setGym(Gym gym) {
+        this.gym = gym;
     }
 
     public int getId() {
@@ -131,10 +170,10 @@ public class Admin {
     }
 
     public UserType getUserType() {
-        return user_type;
+        return userType;
     }
 
-    public void setUserType(UserType user_type) {
-        this.user_type = user_type;
+    public void setUserType(UserType userType) {
+        this.userType = userType;
     }
 }

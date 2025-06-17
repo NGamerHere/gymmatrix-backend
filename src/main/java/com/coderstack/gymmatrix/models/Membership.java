@@ -22,9 +22,10 @@ public class Membership {
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
-    private Member member;
+    private User user;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "status")
     private PlanStatus status;
 
     private LocalDate startDate;
@@ -63,12 +64,12 @@ public class Membership {
         this.membershipPlan = membershipPlan;
     }
 
-    public Member getUser() {
-        return member;
+    public User getUser() {
+        return user;
     }
 
-    public void setUser(Member member) {
-        this.member = member;
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public LocalDate getStartDate() {

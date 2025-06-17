@@ -19,11 +19,11 @@ public class Payment {
 
     @ManyToOne
     @JoinColumn(name = "member_id")
-    private Member member;
+    private User member;
 
     @ManyToOne
     @JoinColumn(name = "collected_by_admin_id")
-    private Admin collectedByAdmin;
+    private User collectedByAdmin;
 
     @Enumerated(EnumType.STRING)
     private PaymentType paymentType;
@@ -79,11 +79,11 @@ public class Payment {
         this.paymentType=paymentType;
     }
 
-    public Admin getCollectedByAdmin() {
+    public User getCollectedByAdmin() {
         return collectedByAdmin;
     }
 
-    public void setCollectedByAdmin(Admin collectedByAdmin) {
+    public void setCollectedByAdmin(User collectedByAdmin) {
         this.collectedByAdmin = collectedByAdmin;
     }
 
@@ -103,11 +103,11 @@ public class Payment {
         this.amount=amount;
     }
 
-    public Member getMember() {
+    public User getMember() {
         return member;
     }
 
-    public void setMember(Member member) {
+    public void setMember(User member) {
         this.member = member;
     }
 

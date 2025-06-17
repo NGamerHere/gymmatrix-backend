@@ -1,6 +1,7 @@
 package com.coderstack.gymmatrix.service;
 
 import com.coderstack.gymmatrix.dto.MemberProjection;
+import com.coderstack.gymmatrix.enums.UserType;
 import com.coderstack.gymmatrix.repository.AdminStatsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,7 +15,7 @@ public class AdminStatsService {
     private AdminStatsRepository adminStatsRepository;
 
     public int getTotalMembers(Long gymId) {
-        return adminStatsRepository.getTotalMemberCount(gymId);
+        return adminStatsRepository.getTotalMemberCount(gymId, UserType.member);
     }
 
     public int getTotalActiveMembers(Long gymId) {
